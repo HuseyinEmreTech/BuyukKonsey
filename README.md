@@ -31,11 +31,19 @@ Büyük Konsey'deki modellerin çalışabilmesi için OpenRouter sisteminden üc
 4. Dosyayı kaydedip kapatın.
 
 ### 4️⃣ Sistemi Başlatma (Her Şeyi O Halletsin)
-Komut satırları veya kodlarla uğraşmanıza gerek yok. Proje klasörünüze gidin, Linux kullanıyorsanız terminali proje klasöründe açıp sadece şu komutu yazın:
+Komut satırları veya tek tek dosyalarla uğraşmanıza gerek yok. İşletim sisteminize uygun olan tek-tık dosyasını çalıştırın:
+
+**🍎 Mac / 🐧 Linux Kullanıcıları:**
+Terminali proje klasöründe açın ve önce dosyaya çalışma izni verip ardından başlatın:
 ```bash
+chmod +x start.sh
 ./start.sh
 ```
-Bu script sizin yerinize gerekli klasörleri kuracak, internet sayfasına (http://localhost:5173/) bağlanacak ve sistemi karşınıza getirecektir.
+
+**🪟 Windows Kullanıcıları:**
+Proje klasöründeki **`start.bat`** dosyasına çift tıklamanız yeterlidir. (Eğer açılmazsa Komut İstemini (CMD) klasörde açıp `start.bat` yazabilirsiniz).
+
+Bu script sizin yerinize gerekli klasörleri kuracak, internet sayfasına (http://localhost:5173/) bağlanacak ve sistemi karşınızdaki tarayıcıda otomatik açacaktır.
 
 ---
 
@@ -44,23 +52,47 @@ Bu script sizin yerinize gerekli klasörleri kuracak, internet sayfasına (http:
 Proje içerisinde yer alan **Ayarlar (⚙️)** kısmından dilediğiniz yapay zekayı (GPT-4, Claude, Gemini vb.) konseye çağırabilirsiniz. OpenRouter üzerinde sonu `:free` ile biten düzinelerce **tamamen ücretsiz** model de mevcuttur. Ancak bilmeniz gereken **ÇOK KRİTİK** bir fark var:
 
 ### 😡 Ücretsiz (Free) Modellerin Dezavantajları (Rate Limit Hatası)
-Ücretsiz modeller sistemde çalışır ancak OpenRouter, bedava sitemine **katı hız sınırları (Rate Limit - 429 Hatası)** uygular. 
-Yani Konsey aynı soruyu 3 modele aynı anda sormaya kalktığında veya saniyeler içinde cevap aradığında, ücretsiz sunucular "Çok hızlı soru soruyorsunuz, benden bu kadar çok işlem isteyemezsiniz!" deyip hata (429) verir ve konsey çöker. *Bunu aşmak için kodda soruyu çok yavaş ve sırayla sorma taktikleri vardır fakat bu da konseyin aşırı yavaşlamasına neden olur.*
+Ücretsiz modeller sistemde çalışır ancak OpenRouter, bedava sunuculara **katı hız sınırları (Rate Limit - 429 Hatası)** uygular. 
+Yani Konsey aynı soruyu 3 modele aynı anda sormaya kalktığında veya siz saniyeler içinde cevap aradığınızda, sunucular "Çok hızlı soru soruyorsunuz!" deyip hata (429) verir ve konsey çöker. *Bunu aşmak için koda modelleri çok uzun süre bekleterek konuşturma taktikleri eklenmiştir fakat bu süreç konseyin çok yavaşlamasına neden olur.*
 
 ### 🚀 Neden Sadece 5$ (Bakiye) Yüklemelisiniz? (Önerilen)
 Sistemi asıl potansiyeliyle, şimşek hızında ve mükemmel bir akılla kullanmak istiyorsanız; OpenRouter hesabınıza (Kredi kartı/Kripto ile) sadece **$5 (Dolar)** bakiye yüklemeniz yeterlidir. Neden mi?
 
 1. **İnanılmaz Ucuzluk**: Premium modellerin (GPT-4o Mini, Claude 3.5 Haiku, Gemini 2.5 Flash) soru başı maliyeti **Kuruş bile değildir** ($0.005 ila $0.01 arası). Sadece $5 ile **500 ila 1000 üzerinde Büyük Konsey** dizebilirsiniz. 
-2. **Kusursuz Hız**: Paralı bir müşteriye dönüştüğünüz an hız sınırları (Rate Limit 429) tamamen kalkar. 3 model birden aynı saniyede konuşur ve saniyeler içinde devasa kod analizlerini ve özetleri hatasız olarak ekranınıza dökerler.
-3. **Gerçek Güç**: Bedava modeller kıyasla zayıf kalırken; $5 bakiye attığınızda Konsey Başkanı seviyesine dünyanın en zeki môdeli olan **GPT-4o**'yu koyabilirsiniz. Sistemin kalitesi 10 kat artar.
+2. **Kusursuz Hız**: Paralı bir müşteriye dönüştüğünüz an hız sınırları (Rate Limit 429) tamamen kalkar. 3 model birden aynı saniyede konuşur ve saniyeler içinde devasa kod analizlerini ve metinleri hatasız olarak ekranınıza dökerler.
+3. **Gerçek Güç**: Bedava modeller kıyasla zayıf kalırken; $5 bakiye attığınızda Konsey Başkanı seviyesine dünyanın en zeki modeli olan **GPT-4o**'yu koyabilirsiniz. Sistemin kalitesi 10 kat artar.
 
 ---
 
 ## 💎 Diğer Premium Özellikler
 
 - **Sohbet Otomasyonu**: Sorunuzun türüne göre (Türkçe, İngilizce), gelişmiş dil modelleri arka planda sorunuzu analiz edip çok şık dinamik isimler (Örn: "Karadelikler Nasıldır?") oluşturup sol sekmeye otomatik ekler.
-- **Sohbet Silme**: Sol taraftaki menüde sohbet listelerinin üzerine farenizle geldiğinizde **Güzel bir Çöp Kutusu (🗑️)** ikonu belirir. Geçmiş konsey toplantılarınızı anında temizleyebilirsiniz.
-- **Çoklu Dil (i18n)**: Yeni eklenen dil altyapısıyla sol alt menüden istediğiniz an Türkçe/İngilizce arayüz arası geçiş yapabilirsiniz. Sistemi nasıl kullanacağınızı anlatan "Yardım (❓)" özelliği de dahil her şey sizin dilinizde olacaktır.
+- **Sohbet Silme**: Sol taraftaki menüde sohbet listelerinin üzerine farenizle geldiğinizde **Çöp Kutusu (🗑️)** ikonu belirir. Geçmiş konsey toplantılarınızı anında temizleyebilirsiniz.
+- **Çoklu Dil (i18n)**: Yeni eklenen dil altyapısıyla sol alt menüden istediğiniz an Türkçe/İngilizce arayüz arası geçiş yapabilirsiniz. Sistemi nasıl kullanacağınızı anlatan "Yardım (❓)" paneli de dahil her şey sizin dilinizde olacaktır.
+
+---
+
+## 🚑 Sıkça Sorulan Sorular (Hata Çözümleri)
+
+**Soru: Uygulama açılırken Backend (Siyah ekran/Konsol) çöküyor, "ModuleNotFoundError" veriyor.**
+Cevap: Python sanal ortamı (`.venv`) düzgün kurulamamış olabilir. Proje klasöründeki `.venv` klasörünü manuel olarak silin ve sistemi (`start.sh` veya `start.bat`) yeniden çalıştırın. Eksik olan modüller baştan indirilecektir.
+
+**Soru: Modellerden "Model XYZ Bulunamadı veya Ücretliye Döndü (402/404)" hatası alıyorum.**
+Cevap: Ayarlar menüsünden `Ayarlar (⚙️)` seçtiğiniz bazı ücretsiz (`:free`) modeller OpenRouter tarafından yayından kaldırılmış olabilir. Menüyü açın, listedeki modelleri güvenilir güncel versiyonlarla (Örn: `google/gemini-2.0-flash-exp:free`) yenileyin ve **Kaydet**'e basın.
+
+**Soru: Sol taraftaki menüde sohbetimin ismi hala "Yeni Sohbet" yazıyor, isimlendirme değişmiyor.**
+Cevap: Dinamik isimlendirmeyi yapan API (Büyük ihtimalle OpenRouter üzerindeki ücretsiz bir kanal) "Rate Limit" engelinden (Çok hızlı sorgu atılmasından) dolayı ismi üretememiştir. Sadece sayfanızı bir kere F5 ile yenileyin.
+
+---
+
+## 🧭 Gelecek Hedefleri (Roadmap)
+
+Topluluğun desteğiyle sisteme ileride eklenmesi hedeflenen vizyonlar:
+- [ ] **Kendi LLM'ini Ekle (Local AI)**: Bakiye limitlerine takılmamak için kullanıcının bilgisayarındaki (Ollama, LM Studio) yerel modelleri doğrudan Konsey'e sokabilme özelliği.
+- [ ] **Konsey Odaları**: Sadece "Kodlama Konseyi", "Felsefe Konseyi" veya "Hikaye Yazarları Konseyi" gibi odalar oluşturup, ilgili daldaki uzman modelleri otomatik eşleştirme.
+- [ ] **Modeller Arası Gerçek Vibe Tartışması**: (Şu anki gibi sadece düz analiz değil), konsey üyelerinin birbirlerinin laflarına "Katılmıyorum" diyerek yanıt ekleyebileceği derinleştirilmiş ajans (Multi-Agent) modeli.
+
+---
 
 ## 🔑 Vibe Code & İlham
 Bu proje, kodlama veya sistemden anlamayan sadece "Yapay zekalar kendi aralarında beni yorumlasa ne güzel bir akıl ortaya çıkardı" diyen vizyoner beyinlerin **"Vibe Coding"** mantığıyla üretilmiş, tam işlevsel gerçek bir yazılım eseridir. İyi konseyler!
