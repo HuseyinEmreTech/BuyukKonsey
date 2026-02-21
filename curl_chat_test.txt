@@ -1,0 +1,11 @@
+HTTP/2 404 
+date: Sat, 21 Feb 2026 20:01:22 GMT
+content-type: application/json
+access-control-allow-origin: *
+permissions-policy: payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com" "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+referrer-policy: no-referrer, strict-origin-when-cross-origin
+x-content-type-options: nosniff
+server: cloudflare
+cf-ray: 9d18d5d47c45d2ee-FRA
+
+{"error":{"message":"No endpoints found for google/gemini-2.0-flash-exp:free.","code":404},"user_id":"user_39zVAHShFvNfmVnotpnPsI99OXs"}

@@ -1,87 +1,56 @@
-# LLM Council
+# Büyük Konsey (LLM Council) - Premium Sürüm
 
-![llmcouncil](header.jpg)
+![Büyük Konsey Header](header.jpg)
 
-The idea of this repo is that instead of asking a question to your favorite LLM provider (e.g. OpenAI GPT 5.1, Google Gemini 3.0 Pro, Anthropic Claude Sonnet 4.5, xAI Grok 4, eg.c), you can group them into your "LLM Council". This repo is a simple, local web app that essentially looks like ChatGPT except it uses OpenRouter to send your query to multiple LLMs, it then asks them to review and rank each other's work, and finally a Chairman LLM produces the final response.
+Bu projenin ana fikri, favori LLM sağlayıcınıza tekil bir soru sormak yerine, onlardan oluşan bir **"Büyük Konsey"** kurabilmenizdir. Bu uygulama, ChatGPT'ye benzeyen modern ve premium bir web arayüzüdür; ancak sorgunuzu birden fazla LLM'e (Aşama 1) gönderir, ardından onlardan birbirlerinin çalışmalarını anonim olarak inceleyip sıralamalarını (Aşama 2) ister ve son olarak "Konsey Başkanı" nihai, sentezlenmiş yanıtı (Aşama 3) üretir.
 
-In a bit more detail, here is what happens when you submit a query:
+---
 
-1. **Stage 1: First opinions**. The user query is given to all LLMs individually, and the responses are collected. The individual responses are shown in a "tab view", so that the user can inspect them all one by one.
-2. **Stage 2: Review**. Each individual LLM is given the responses of the other LLMs. Under the hood, the LLM identities are anonymized so that the LLM can't play favorites when judging their outputs. The LLM is asked to rank them in accuracy and insight.
-3. **Stage 3: Final response**. The designated Chairman of the LLM Council takes all of the model's responses and compiles them into a single final answer that is presented to the user.
+## 💎 Öne Çıkan Yeni Özellikler
 
-## Vibe Code Alert
+### 1. Glassmorphism (Premium UI)
+Arayüz, modern **buzlu cam (frosted glass)** efekti ile baştan tasarlandı. Indigo ve Violet gradyanları ile zenginleştirilmiş, estetik bir derinlik hisse sahip karanlık ve aydınlık tema desteği sunar.
 
-This project was 99% vibe coded as a fun Saturday hack because I wanted to explore and evaluate a number of LLMs side by side in the process of [reading books together with LLMs](https://x.com/karpathy/status/1990577951671509438). It's nice and useful to see multiple responses side by side, and also the cross-opinions of all LLMs on each other's outputs. I'm not going to support it in any way, it's provided here as is for other people's inspiration and I don't intend to improve it. Code is ephemeral now and libraries are over, ask your LLM to change it in whatever way you like.
+### 2. 📊 Sistem Durumu & API İzleme
+Sol alttaki buton aracılığıyla erişilebilen bu panelde:
+- Backend sunucusunun aktiflik durumunu (`Online/Offline`) görebilirsiniz.
+- Atılan son API isteklerini ve OpenRouter'dan gelen yanıtları (JSON) canlı olarak izleyebilirsiniz.
+- Hataları (Bakiye yetersizliği, Rate Limit vb.) teknik olarak takip edebilirsiniz.
 
-## Setup
+### 3. 🛡️ Dayanıklı Backend & Hata Yönetimi
+OpenRouter'ın ücretsiz katmanındaki zorluklara (429 Too Many Requests, 402 Payment Required) karşı dayanıklıdır:
+- **Kademeli İstekler**: Rate limit aşımını önlemek için isteklere milimetrik gecikmeler eklenmiştir.
+- **Hata Toleransı**: Bir model yanıt vermese bile konsey dağılmaz; hata kullanıcıya bildirilir ve diğer modellerle süreç tamamlanır.
 
-### 1. Install Dependencies
+### 4. 🚀 Tek Tıkla Başlatma (`start.sh`)
+Kurulum ve terminal karmaşasına son! Proje kök dizinindeki `./start.sh` dosyasını çalıştırarak hem backend'i hem frontend'i tek seferde ayağa kaldırabilirsiniz.
 
-The project uses [uv](https://docs.astral.sh/uv/) for project management.
+---
 
-**Backend:**
-```bash
-uv sync
-```
+## 🛠️ Nasıl Çalışır?
 
-**Frontend:**
-```bash
-cd frontend
-npm install
-cd ..
-```
+1.  **Aşama 1: İlk Görüşler.** Sorgunuz seçilen tüm elit modellere gönderilir.
+2.  **Aşama 2: Akran Değerlendirmesi.** Modeller birbirlerinin yanıtlarını anonim olarak puanlar ve bir "İtibar Sıralaması" (Street Cred) oluşturur.
+3.  **Aşama 3: Büyük Sentez.** Konsey Başkanı, tüm verileri süzerek "Nihai Kesin Cevap"ı oluşturur.
 
-### 2. Configure API Key
+---
 
-Create a `.env` file in the project root:
+## 🚀 Hızlı Başlangıç
 
-```bash
-OPENROUTER_API_KEY=sk-or-v1-...
-```
+1.  **API Anahtarı**: Kök dizinde `.env` dosyası oluşturun ve anahtarınızı ekleyin:
+    ```bash
+    OPENROUTER_API_KEY=sk-or-v1-...
+    ```
+2.  **Tek Komutla Çalıştır**:
+    ```bash
+    chmod +x start.sh
+    ./start.sh
+    ```
 
-Get your API key at [openrouter.ai](https://openrouter.ai/). Make sure to purchase the credits you need, or sign up for automatic top up.
+---
 
-### 3. Configure Models (Optional)
+## ⚙️ Modelleri Yapılandırın
+Konsey üyelerini ve Başkanı uygulama içindeki **Ayarlar (Settings ⚙️)** paneli üzerinden dinamik olarak değiştirebilirsiniz. Ücretsiz kullanım (0$ bakiye) için sadece sonu `:free` ile biten modelleri (örn: `google/gemini-2.0-flash-exp:free`) seçtiğinizden emin olun.
 
-Edit `backend/config.py` to customize the council:
-
-```python
-COUNCIL_MODELS = [
-    "openai/gpt-5.1",
-    "google/gemini-3-pro-preview",
-    "anthropic/claude-sonnet-4.5",
-    "x-ai/grok-4",
-]
-
-CHAIRMAN_MODEL = "google/gemini-3-pro-preview"
-```
-
-## Running the Application
-
-**Option 1: Use the start script**
-```bash
-./start.sh
-```
-
-**Option 2: Run manually**
-
-Terminal 1 (Backend):
-```bash
-uv run python -m backend.main
-```
-
-Terminal 2 (Frontend):
-```bash
-cd frontend
-npm run dev
-```
-
-Then open http://localhost:5173 in your browser.
-
-## Tech Stack
-
-- **Backend:** FastAPI (Python 3.10+), async httpx, OpenRouter API
-- **Frontend:** React + Vite, react-markdown for rendering
-- **Storage:** JSON files in `data/conversations/`
-- **Package Management:** uv for Python, npm for JavaScript
+## 🔑 Vibe Code & İlham
+Bu proje, yapay zekaların birbirlerini yargılamasının ne kadar şaşırtıcı sonuçlar doğurabileceğini görmek amacıyla geliştirilmiş bir **"Vibe Coding"** eseridir. Kod geçicidir, fikir kalıcıdır. İyi konseyler!

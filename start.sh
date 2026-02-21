@@ -1,31 +1,52 @@
 #!/bin/bash
 
-# LLM Council - Start script
+# Renk tanımlamaları
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
 
-echo "Starting LLM Council..."
-echo ""
+echo -e "${BLUE}=======================================${NC}"
+echo -e "${GREEN}      BÜYÜK KONSEY BAŞLATILIYOR        ${NC}"
+echo -e "${BLUE}=======================================${NC}"
 
-# Start backend
-echo "Starting backend on http://localhost:8001..."
-uv run python -m backend.main &
-BACKEND_PID=$!
+# Mevcut çalışan süreçleri temizle
+echo -e "${BLUE}[1/4] Eski süreçler temizleniyor...${NC}"
+fuser -k 8001/tcp 2>/dev/null
+fuser -k 5173/tcp 2>/dev/null
+sleep 1
 
-# Wait a bit for backend to start
-sleep 2
+# Backend Hazırlığı
+echo -e "${BLUE}[2/4] Backend hazırlanıyor...${NC}"
+if [ ! -d ".venv" ]; then
+    echo -e "${RED}.venv bulunamadı, oluşturuluyor...${NC}"
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install -r backend/requirements.txt
+else
+    source .venv/bin/activate
+fi
 
-# Start frontend
-echo "Starting frontend on http://localhost:5173..."
+# Backend'i başlat
+nohup python3 -m backend.main > backend.log 2>&1 &
+echo -e "${GREEN}✔ Backend arka planda başlatıldı (Port: 8001)${NC}"
+
+# Frontend Hazırlığı
+echo -e "${BLUE}[3/4] Frontend hazırlanıyor...${NC}"
 cd frontend
-npm run dev &
-FRONTEND_PID=$!
+if [ ! -d "node_modules" ]; then
+    echo -e "${RED}Bağımlılıklar eksik, npm install çalıştırılıyor...${NC}"
+    npm install
+fi
 
-echo ""
-echo "✓ LLM Council is running!"
-echo "  Backend:  http://localhost:8001"
-echo "  Frontend: http://localhost:5173"
-echo ""
-echo "Press Ctrl+C to stop both servers"
+# Frontend'i başlat
+echo -e "${BLUE}[4/4] Uygulama açılıyor...${NC}"
+echo -e "\n${GREEN}🚀 Uygulama hazır! Tarayıcınızda açılıyor: http://localhost:5173${NC}"
+echo -e "${NC}DURDURMAK İÇİN: Terminalde CTRL+C tuşlarına basın.${NC}\n"
 
-# Wait for Ctrl+C
-trap "kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit" SIGINT SIGTERM
-wait
+# Tarayıcıyı aç (isteğe bağlı, Linux xdg-open)
+if command -v xdg-open > /dev/null; then
+    xdg-open http://localhost:5173 2>/dev/null &
+fi
+
+npm run dev

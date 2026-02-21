@@ -2,7 +2,7 @@
 
 from typing import List, Dict, Any, Tuple
 from .openrouter import query_models_parallel, query_model
-from .config import COUNCIL_MODELS, CHAIRMAN_MODEL
+from . import config
 
 
 async def stage1_collect_responses(user_query: str) -> List[Dict[str, Any]]:
@@ -17,17 +17,17 @@ async def stage1_collect_responses(user_query: str) -> List[Dict[str, Any]]:
     """
     messages = [{"role": "user", "content": user_query}]
 
-    # Query all models in parallel
-    responses = await query_models_parallel(COUNCIL_MODELS, messages)
+    # Query all models with staggering
+    responses = await query_models_parallel(config.COUNCIL_MODELS, messages)
 
     # Format results
     stage1_results = []
     for model, response in responses.items():
-        if response is not None:  # Only include successful responses
-            stage1_results.append({
-                "model": model,
-                "response": response.get('content', '')
-            })
+        # Even if it's an error message, we include it to show the user what happened
+        stage1_results.append({
+            "model": model,
+            "response": response.get('content', 'Model yanıt veremedi.')
+        })
 
     return stage1_results
 
@@ -95,19 +95,18 @@ Now provide your evaluation and ranking:"""
     messages = [{"role": "user", "content": ranking_prompt}]
 
     # Get rankings from all council models in parallel
-    responses = await query_models_parallel(COUNCIL_MODELS, messages)
+    responses = await query_models_parallel(config.COUNCIL_MODELS, messages)
 
     # Format results
     stage2_results = []
     for model, response in responses.items():
-        if response is not None:
-            full_text = response.get('content', '')
-            parsed = parse_ranking_from_text(full_text)
-            stage2_results.append({
-                "model": model,
-                "ranking": full_text,
-                "parsed_ranking": parsed
-            })
+        full_text = response.get('content', 'Sıralama yapılamadı.')
+        parsed = parse_ranking_from_text(full_text)
+        stage2_results.append({
+            "model": model,
+            "ranking": full_text,
+            "parsed_ranking": parsed
+        })
 
     return stage2_results, label_to_model
 
@@ -149,28 +148,32 @@ STAGE 1 - Individual Responses:
 STAGE 2 - Peer Rankings:
 {stage2_text}
 
-Your task as Chairman is to synthesize all of this information into a single, comprehensive, accurate answer to the user's original question. Consider:
-- The individual responses and their insights
-- The peer rankings and what they reveal about response quality
-- Any patterns of agreement or disagreement
+Your task as Chairman is to synthesize all of this information into a single, comprehensive, accurate answer to the user's original question. 
 
-Provide a clear, well-reasoned final answer that represents the council's collective wisdom:"""
+CRITICAL RULES:
+1. You MUST answer in TURKISH (or the language of the original question).
+2. DO NOT include introductory phrases like "After careful consideration..." or "Here is the comprehensive answer:".
+3. DO NOT explain your synthesis process.
+4. Just provide the direct, final, synthesized answer as if you are directly speaking to the user.
+
+Provide your final synthesized response now:"""
+
 
     messages = [{"role": "user", "content": chairman_prompt}]
 
     # Query the chairman model
-    response = await query_model(CHAIRMAN_MODEL, messages)
+    response = await query_model(config.CHAIRMAN_MODEL, messages)
 
-    if response is None:
-        # Fallback if chairman fails
+    content = response.get('content', '')
+    if content.startswith("Hata:"):
         return {
-            "model": CHAIRMAN_MODEL,
-            "response": "Error: Unable to generate final synthesis."
+            "model": config.CHAIRMAN_MODEL,
+            "response": f"Başkan Sentez Yapamadı: {content}"
         }
 
     return {
-        "model": CHAIRMAN_MODEL,
-        "response": response.get('content', '')
+        "model": config.CHAIRMAN_MODEL,
+        "response": content
     }
 
 
@@ -267,6 +270,7 @@ async def generate_conversation_title(user_query: str) -> str:
     """
     title_prompt = f"""Generate a very short title (3-5 words maximum) that summarizes the following question.
 The title should be concise and descriptive. Do not use quotes or punctuation in the title.
+IMPORTANT: The title MUST BE in the SAME LANGUAGE as the question below.
 
 Question: {user_query}
 
@@ -274,14 +278,14 @@ Title:"""
 
     messages = [{"role": "user", "content": title_prompt}]
 
-    # Use gemini-2.5-flash for title generation (fast and cheap)
-    response = await query_model("google/gemini-2.5-flash", messages, timeout=30.0)
+    # Use a fast, reliable model for title generation
+    response = await query_model("openai/gpt-4o-mini", messages, timeout=30.0)
 
-    if response is None:
-        # Fallback to a generic title
+    content = response.get('content', 'New Conversation')
+    if content.startswith("Hata:"):
         return "New Conversation"
 
-    title = response.get('content', 'New Conversation').strip()
+    title = content.strip()
 
     # Clean up the title - remove quotes, limit length
     title = title.strip('"\'')

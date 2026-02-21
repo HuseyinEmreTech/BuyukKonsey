@@ -10,7 +10,9 @@ import json
 import asyncio
 
 from . import storage
+from . import config
 from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
+import httpx
 
 app = FastAPI(title="LLM Council API")
 
@@ -22,6 +24,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+class Settings(BaseModel):
+    """Council and chairman model settings."""
+    council_models: List[str]
+    chairman_model: str
 
 
 class CreateConversationRequest(BaseModel):
@@ -77,6 +85,15 @@ async def get_conversation(conversation_id: str):
     if conversation is None:
         raise HTTPException(status_code=404, detail="Conversation not found")
     return conversation
+
+
+@app.delete("/api/conversations/{conversation_id}")
+async def delete_conversation(conversation_id: str):
+    """Delete a specific conversation."""
+    success = storage.delete_conversation(conversation_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    return {"status": "success", "message": "Conversation deleted"}
 
 
 @app.post("/api/conversations/{conversation_id}/message")
@@ -192,6 +209,41 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             "Connection": "keep-alive",
         }
     )
+
+
+@app.get("/api/settings", response_model=Settings)
+async def get_settings():
+    """Get current council and chairman settings."""
+    return config.get_settings()
+
+
+@app.post("/api/settings")
+async def update_settings(settings: Settings):
+    """Update council and chairman settings."""
+    config.save_settings(settings.council_models, settings.chairman_model)
+    config.reload_config()
+    return {"status": "success"}
+
+
+@app.get("/api/models")
+async def list_available_models():
+    """Fetch available models from OpenRouter."""
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get("https://openrouter.ai/api/v1/models")
+            response.raise_for_status()
+            data = response.json()
+            # Return a simplified list of models
+            return [{"id": m["id"], "name": m["name"]} for m in data.get("data", [])]
+    except Exception as e:
+        print(f"Error fetching models: {e}")
+        # Return common fallback models if API call fails
+        return [
+            {"id": "openai/gpt-4o", "name": "GPT-4o"},
+            {"id": "google/gemini-2.0-pro-exp-02-05:free", "name": "Gemini 2.0 Pro"},
+            {"id": "anthropic/claude-3.5-sonnet", "name": "Claude 3.5 Sonnet"},
+            {"id": "deepseek/deepseek-chat", "name": "DeepSeek Chat"}
+        ]
 
 
 if __name__ == "__main__":

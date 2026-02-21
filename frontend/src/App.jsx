@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
+import TutorialModal from './components/TutorialModal';
+import SettingsModal from './components/SettingsModal';
+import SystemStatus from './components/SystemStatus';
 import { api } from './api';
 import './App.css';
 
@@ -9,10 +12,20 @@ function App() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
 
   // Load conversations on mount
   useEffect(() => {
     loadConversations();
+
+    // Show tutorial on first load
+    const hasSeenTutorial = localStorage.getItem('bk-tutorial-seen');
+    if (!hasSeenTutorial) {
+      setIsTutorialOpen(true);
+      localStorage.setItem('bk-tutorial-seen', 'true');
+    }
   }, []);
 
   // Load conversation details when selected
@@ -55,6 +68,28 @@ function App() {
 
   const handleSelectConversation = (id) => {
     setCurrentConversationId(id);
+  };
+
+  const handleDeleteConversation = async (id) => {
+    if (!window.confirm("Bu sohbeti silmek istediğinize emin misiniz?")) {
+      return;
+    }
+
+    try {
+      await api.deleteConversation(id);
+
+      // Remove from list
+      setConversations(conversations.filter(c => c.id !== id));
+
+      // If deleted current conversation, clear it
+      if (currentConversationId === id) {
+        setCurrentConversationId(null);
+        setCurrentConversation(null);
+      }
+    } catch (error) {
+      console.error('Failed to delete conversation:', error);
+      alert("Sohbet silinirken bir hata oluştu.");
+    }
   };
 
   const handleSendMessage = async (content) => {
@@ -188,11 +223,27 @@ function App() {
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
         onNewConversation={handleNewConversation}
+        onDeleteConversation={handleDeleteConversation}
+        onShowTutorial={() => setIsTutorialOpen(true)}
+        onShowSettings={() => setIsSettingsOpen(true)}
+        onShowStatus={() => setIsStatusOpen(true)}
       />
       <ChatInterface
         conversation={currentConversation}
         onSendMessage={handleSendMessage}
         isLoading={isLoading}
+      />
+      <TutorialModal
+        isOpen={isTutorialOpen}
+        onClose={() => setIsTutorialOpen(false)}
+      />
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
+      <SystemStatus
+        isOpen={isStatusOpen}
+        onClose={() => setIsStatusOpen(false)}
       />
     </div>
   );
