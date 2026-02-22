@@ -93,6 +93,3 @@ Topluluğun desteğiyle sisteme ileride eklenmesi hedeflenen vizyonlar:
 - [ ] **Modeller Arası Gerçek Vibe Tartışması**: (Şu anki gibi sadece düz analiz değil), konsey üyelerinin birbirlerinin laflarına "Katılmıyorum" diyerek yanıt ekleyebileceği derinleştirilmiş ajans (Multi-Agent) modeli.
 
 ---
-
-## 🔑 Vibe Code & İlham
-Bu proje, kodlama veya sistemden anlamayan sadece "Yapay zekalar kendi aralarında beni yorumlasa ne güzel bir akıl ortaya çıkardı" diyen vizyoner beyinlerin **"Vibe Coding"** mantığıyla üretilmiş, tam işlevsel gerçek bir yazılım eseridir. İyi konseyler!
