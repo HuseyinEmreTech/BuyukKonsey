@@ -6,16 +6,16 @@ import './SettingsModal.css';
 // Brand info mapping based on model ID prefix
 const getBrandInfo = (modelId) => {
     const id = modelId.toLowerCase();
-    if (id.includes('openai/')) return { icon: '🟢', brand: 'OpenAI', bg: 'rgba(16, 163, 127, 0.15)', color: '#10a37f' };
-    if (id.includes('anthropic/')) return { icon: '🟤', brand: 'Anthropic', bg: 'rgba(217, 119, 87, 0.15)', color: '#d97757' };
-    if (id.includes('google/')) return { icon: '🔵', brand: 'Google', bg: 'rgba(66, 133, 244, 0.15)', color: '#8ab4f8' };
-    if (id.includes('meta-llama/')) return { icon: '🥽', brand: 'Meta', bg: 'rgba(6, 104, 225, 0.15)', color: '#6fb5ff' };
-    if (id.includes('x-ai/')) return { icon: '✖️', brand: 'xAI', bg: 'rgba(255, 255, 255, 0.1)', color: '#ffffff' };
-    if (id.includes('deepseek/')) return { icon: '🐋', brand: 'DeepSeek', bg: 'rgba(77, 105, 236, 0.15)', color: '#4d69ec' };
-    if (id.includes('mistralai/')) return { icon: '🌪️', brand: 'Mistral', bg: 'rgba(251, 169, 25, 0.15)', color: '#fba919' };
-    if (id.includes('cohere/')) return { icon: '🪨', brand: 'Cohere', bg: 'rgba(57, 89, 77, 0.15)', color: '#88a399' };
-    if (id.includes('nousresearch/')) return { icon: '🧠', brand: 'Nous', bg: 'rgba(255, 100, 100, 0.15)', color: '#ff6464' };
-    return { icon: '🤖', brand: 'Diğer', bg: 'var(--bg-secondary)', color: 'var(--text-secondary)' };
+    if (id.includes('openai/')) return { icon: '🟢', brand: 'OpenAI', bg: 'rgba(16, 163, 127, 0.15)', color: '#10a37f', desc: 'Güçlü Analiz & Mükemmel Kodlama' };
+    if (id.includes('anthropic/')) return { icon: '🟤', brand: 'Anthropic', bg: 'rgba(217, 119, 87, 0.15)', color: '#d97757', desc: 'İnsan Benzeri Kalite & Uzun Bağlam' };
+    if (id.includes('google/')) return { icon: '🔵', brand: 'Google', bg: 'rgba(66, 133, 244, 0.15)', color: '#8ab4f8', desc: 'Yüksek Hız & Anında Cevap' };
+    if (id.includes('meta-llama/')) return { icon: '🥽', brand: 'Meta', bg: 'rgba(6, 104, 225, 0.15)', color: '#6fb5ff', desc: 'Açık Kaynak Lideri & Tutarlı' };
+    if (id.includes('x-ai/')) return { icon: '✖️', brand: 'xAI', bg: 'rgba(255, 255, 255, 0.1)', color: '#ffffff', desc: 'Gerçek Zamanlı Veri & Zeka' };
+    if (id.includes('deepseek/')) return { icon: '🐋', brand: 'DeepSeek', bg: 'rgba(77, 105, 236, 0.15)', color: '#4d69ec', desc: 'Matematik & Gelişmiş Kodlama' };
+    if (id.includes('mistralai/')) return { icon: '🌪️', brand: 'Mistral', bg: 'rgba(251, 169, 25, 0.15)', color: '#fba919', desc: 'Avrupa Çıkışlı & Etkili' };
+    if (id.includes('cohere/')) return { icon: '🪨', brand: 'Cohere', bg: 'rgba(57, 89, 77, 0.15)', color: '#88a399', desc: 'Kurumsal Seviye Mantık' };
+    if (id.includes('nousresearch/')) return { icon: '🧠', brand: 'Nous', bg: 'rgba(255, 100, 100, 0.15)', color: '#ff6464', desc: 'Topluluk Odaklı & Özgür' };
+    return { icon: '🤖', brand: 'Diğer', bg: 'var(--bg-secondary)', color: 'var(--text-secondary)', desc: 'Ekstra Topluluk Modeli' };
 };
 
 export default function SettingsModal({ isOpen, onClose }) {
@@ -188,6 +188,7 @@ export default function SettingsModal({ isOpen, onClose }) {
                                                 <div className="model-card-body">
                                                     <h4 title={model.name}>{model.name.split(': ').pop() || model.name}</h4>
                                                     <div className="model-id" title={model.id}>{model.id.split('/').pop()}</div>
+                                                    <div className="model-desc">{brand.desc}</div>
                                                 </div>
                                                 <div className="model-card-actions">
                                                     <button
