@@ -96,20 +96,20 @@ Here are the responses from different models (anonymized):
 {responses_text}
 
 Your task:
-1. First, evaluate each response individually. For each response, explain what it does well and what it does poorly.
+1. First, evaluate each response individually in the SAME LANGUAGE as the original question (e.g., if the question is in Turkish, your entire evaluation MUST be in Turkish). For each response, explain what it does well and what it does poorly.
 2. Then, at the very end of your response, provide a final ranking.
 
-IMPORTANT: Your final ranking MUST be formatted EXACTLY as follows:
+IMPORTANT: Your final ranking MUST be formatted EXACTLY as follows (keep the English "FINAL RANKING:" header for system parsing):
 - Start with the line "FINAL RANKING:" (all caps, with colon)
 - Then list the responses from best to worst as a numbered list
 - Each line should be: number, period, space, then ONLY the response label (e.g., "1. Response A")
 - Do not add any other text or explanations in the ranking section
 
-Example of the correct format for your ENTIRE response:
+Example of the correct format for your ENTIRE response (assuming a Turkish question):
 
-Response A provides good detail on X but misses Y...
-Response B is accurate but lacks depth on Z...
-Response C offers the most comprehensive answer...
+Yanıt A, X konusunda iyi detaylar veriyor ancak Y'yi kaçırmış...
+Yanıt B doğru ama Z konusunda derinlikten yoksun...
+Yanıt C en kapsamlı cevabı sunuyor...
 
 FINAL RANKING:
 1. Response C
