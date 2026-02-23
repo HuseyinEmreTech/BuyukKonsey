@@ -12,28 +12,9 @@ function App() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+  const [isTutorialOpen, setIsTutorialOpen] = useState(() => !localStorage.getItem('bk-tutorial-seen'));
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
-
-  // Load conversations on mount
-  useEffect(() => {
-    loadConversations();
-
-    // Show tutorial on first load
-    const hasSeenTutorial = localStorage.getItem('bk-tutorial-seen');
-    if (!hasSeenTutorial) {
-      setIsTutorialOpen(true);
-      localStorage.setItem('bk-tutorial-seen', 'true');
-    }
-  }, []);
-
-  // Load conversation details when selected
-  useEffect(() => {
-    if (currentConversationId) {
-      loadConversation(currentConversationId);
-    }
-  }, [currentConversationId]);
 
   const loadConversations = async () => {
     try {
@@ -44,6 +25,19 @@ function App() {
     }
   };
 
+  // Load conversations on mount
+  useEffect(() => {
+    const init = async () => {
+      await loadConversations();
+    };
+    init();
+
+    // Set tutorial as seen if it's the first time
+    if (!localStorage.getItem('bk-tutorial-seen')) {
+      localStorage.setItem('bk-tutorial-seen', 'true');
+    }
+  }, []);
+
   const loadConversation = async (id) => {
     try {
       const conv = await api.getConversation(id);
@@ -52,6 +46,16 @@ function App() {
       console.error('Failed to load conversation:', error);
     }
   };
+
+  // Load conversation details when selected
+  useEffect(() => {
+    if (currentConversationId) {
+      const init = async () => {
+        await loadConversation(currentConversationId);
+      };
+      init();
+    }
+  }, [currentConversationId]);
 
   const handleNewConversation = async () => {
     try {

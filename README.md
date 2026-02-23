@@ -69,6 +69,7 @@ Sistemi asıl potansiyeliyle, şimşek hızında ve mükemmel bir akılla kullan
 - **Sohbet Otomasyonu**: Sorunuzun türüne göre (Türkçe, İngilizce), gelişmiş dil modelleri arka planda sorunuzu analiz edip çok şık dinamik isimler (Örn: "Karadelikler Nasıldır?") oluşturup sol sekmeye otomatik ekler.
 - **Sohbet Silme**: Sol taraftaki menüde sohbet listelerinin üzerine farenizle geldiğinizde **Çöp Kutusu (🗑️)** ikonu belirir. Geçmiş konsey toplantılarınızı anında temizleyebilirsiniz.
 - **Çoklu Dil (i18n)**: Yeni eklenen dil altyapısıyla sol alt menüden istediğiniz an Türkçe/İngilizce arayüz arası geçiş yapabilirsiniz. Sistemi nasıl kullanacağınızı anlatan "Yardım (❓)" paneli de dahil her şey sizin dilinizde olacaktır.
+- **Sistem Durumu (Log İzleme)**: Sol alt menüdeki **Sistem Durumu (📡)** butonu ile API'nizin online olup olmadığını kontrol edebilir, son yapılan ağ isteklerini ve dönen hata mesajlarını anlık olarak takip edebilirsiniz.
 
 ---
 

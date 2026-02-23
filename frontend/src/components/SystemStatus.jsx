@@ -1,23 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { api } from '../api';
 import './SystemStatus.css';
 
 export default function SystemStatus({ isOpen, onClose }) {
     const { t } = useLanguage();
-    const [apiStatus, setApiStatus] = useState('checking');
+    const [apiStatus, setApiStatus] = useState('offline');
     const [logs, setLogs] = useState([]);
 
-    useEffect(() => {
-        if (isOpen) {
-            checkStatus();
-            // In a real app, we'd fetch actual logs from backend
-            // Here we'll simulate or use a shared state if available
-            loadMockLogs();
-        }
-    }, [isOpen]);
-
     const checkStatus = async () => {
+        // We set it to checking only when manually refreshing or via effect
         setApiStatus('checking');
         try {
             const response = await fetch('http://localhost:8001/');
@@ -26,7 +17,7 @@ export default function SystemStatus({ isOpen, onClose }) {
             } else {
                 setApiStatus('offline');
             }
-        } catch (error) {
+        } catch {
             setApiStatus('offline');
         }
     };
@@ -39,6 +30,17 @@ export default function SystemStatus({ isOpen, onClose }) {
             { id: 3, type: 'POST /api/message', time: new Date().toLocaleTimeString(), status: 402, data: '{ "error": "Insufficient Balance" }' }
         ]);
     };
+
+    useEffect(() => {
+        if (isOpen) {
+            // Use a clean way to trigger async calls
+            const init = async () => {
+                await checkStatus();
+                loadMockLogs();
+            };
+            init();
+        }
+    }, [isOpen]);
 
     if (!isOpen) return null;
 

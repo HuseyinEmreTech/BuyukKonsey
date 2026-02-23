@@ -295,7 +295,7 @@ export default function SettingsModal({ isOpen, onClose }) {
 
                 <div className="settings-footer">
                     <div className="dev-credit" style={{ fontSize: '12px', color: 'var(--text-muted)', flex: 1 }}>
-                        Built with 🔥 by <strong>Hüseyin Emre</strong>
+                        Built with 🔥 by <a href="https://github.com/HuseyinEmreTech" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}><strong>Hüseyin Emre</strong></a>
                     </div>
                     <button className="settings-btn secondary" onClick={onClose}>{t('status.close')}</button>
                     <button
