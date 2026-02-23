@@ -24,10 +24,17 @@ export default function SettingsModal({ isOpen, onClose }) {
     const [chairmanModel, setChairmanModel] = useState('');
     const [availableModels, setAvailableModels] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeTab, setActiveTab] = useState('All');
+    const [priceFilter, setPriceFilter] = useState('All');
+    const [speedFilter, setSpeedFilter] = useState('All');
+    const [brandFilter, setBrandFilter] = useState('All');
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [customModel, setCustomModel] = useState('');
+
+    const getModelName = (modelId) => {
+        const modelObj = availableModels.find(m => m.id === modelId);
+        return modelObj ? (modelObj.name.split(': ').pop() || modelObj.name) : modelId.split('/').pop();
+    };
 
     useEffect(() => {
         if (isOpen) {
@@ -66,11 +73,14 @@ export default function SettingsModal({ isOpen, onClose }) {
                 council_models: filteredCouncil,
                 chairman_model: chairmanModel && chairmanModel.trim() !== '' ? chairmanModel.trim() : filteredCouncil[0]
             });
-            onClose();
+            setIsSaving('success');
+            setTimeout(() => {
+                onClose();
+                setIsSaving(false);
+            }, 600);
         } catch (error) {
             console.error('Error saving settings:', error);
             alert(t('settings.error'));
-        } finally {
             setIsSaving(false);
         }
     };
@@ -120,18 +130,28 @@ export default function SettingsModal({ isOpen, onClose }) {
         }
     };
 
-    // Filter models based on search query and active tab
+    // Filter models based on multidimensional criteria
     const filteredModels = useMemo(() => {
         let result = availableModels;
 
-        // Tab filtering
-        if (activeTab === 'Ücretsiz') {
+        // 1. Price filtering
+        if (priceFilter === 'Ücretsiz') {
             result = result.filter(m => m.is_free);
-        } else if (activeTab !== 'All') {
-            result = result.filter(m => getBrandInfo(m.id).brand === activeTab);
+        } else if (priceFilter === 'Ücretli') {
+            result = result.filter(m => !m.is_free);
         }
 
-        // Search filtering
+        // 2. Speed filtering
+        if (speedFilter !== 'All') {
+            result = result.filter(m => m.speed === speedFilter);
+        }
+
+        // 3. Brand filtering
+        if (brandFilter !== 'All') {
+            result = result.filter(m => getBrandInfo(m.id).brand === brandFilter);
+        }
+
+        // 4. Search filtering
         if (searchQuery.trim()) {
             const query = searchQuery.toLowerCase();
             result = result.filter(m =>
@@ -141,9 +161,9 @@ export default function SettingsModal({ isOpen, onClose }) {
         }
 
         return result;
-    }, [availableModels, searchQuery, activeTab]);
+    }, [availableModels, searchQuery, priceFilter, speedFilter, brandFilter]);
 
-    const TABS = ['All', 'Ücretsiz', 'OpenAI', 'Anthropic', 'Google', 'Meta', 'DeepSeek', 'xAI', 'Mistral', 'Cohere', 'Nous', 'Diğer'];
+    const BRAND_OPTIONS = ['All', 'OpenAI', 'Anthropic', 'Google', 'Meta', 'DeepSeek', 'xAI', 'Mistral', 'Cohere', 'Nous', 'Diğer'];
 
     if (!isOpen) return null;
 
@@ -182,7 +202,7 @@ export default function SettingsModal({ isOpen, onClose }) {
                                     {councilModels.map(modelId => (
                                         <div key={`c-${modelId}`} className="model-chip" title={modelId}>
                                             <span className="chip-brand">{getBrandInfo(modelId).icon}</span>
-                                            <span className="chip-text">{modelId.split('/').pop()}</span>
+                                            <span className="chip-text">{getModelName(modelId)}</span>
                                             <button className="chip-remove" onClick={() => removeCouncilModel(modelId)}>&times;</button>
                                         </div>
                                     ))}
@@ -196,7 +216,7 @@ export default function SettingsModal({ isOpen, onClose }) {
                                     {chairmanModel ? (
                                         <div className="model-chip chairman-chip" title={chairmanModel}>
                                             <span className="chip-brand">{getBrandInfo(chairmanModel).icon}</span>
-                                            <span className="chip-text">{chairmanModel.split('/').pop()}</span>
+                                            <span className="chip-text">{getModelName(chairmanModel)}</span>
                                             <button className="chip-remove" onClick={() => setChairmanModel('')}>&times;</button>
                                         </div>
                                     ) : (
@@ -205,6 +225,19 @@ export default function SettingsModal({ isOpen, onClose }) {
                                 </div>
                             </div>
                         </div>
+
+                        {/* 3. MANUEL MODEL EKLEME */}
+                        <form className="custom-model-adder" onSubmit={handleAddCustomModel} style={{ marginTop: '0', marginBottom: '30px' }}>
+                            <label>Katalogda Olmayan Özel Model Ekle:</label>                    <div className="custom-input-group">
+                                <input
+                                    type="text"
+                                    placeholder="örn: anthropic/claude-3-opus:beta"
+                                    value={customModel}
+                                    onChange={e => setCustomModel(e.target.value)}
+                                />
+                                <button type="submit" disabled={!customModel.trim()}>Ekle</button>
+                            </div>
+                        </form>
 
                         {/* 2. MODEL ARAMA VE SEÇME IZGARASI */}
                         <div className="model-picker-section">
@@ -219,18 +252,49 @@ export default function SettingsModal({ isOpen, onClose }) {
                                 />
                             </div>
 
-                            {/* TABS */}
-                            <div className="brand-tabs">
-                                {TABS.map(tab => (
-                                    <button
-                                        key={tab}
-                                        className={`brand-tab ${activeTab === tab ? 'active' : ''}`}
-                                        onClick={() => setActiveTab(tab)}
-                                        title={tab === 'All' ? 'Tüm Modeller' : tab}
+                            {/* MULTI-DIMENSIONAL FILTERS */}
+                            <div className="filters-container">
+                                <div className="filter-group">
+                                    <label>Fiyatlandırma</label>
+                                    <select
+                                        className="filter-select"
+                                        value={priceFilter}
+                                        onChange={(e) => setPriceFilter(e.target.value)}
                                     >
-                                        {tab === 'All' ? 'Tümü' : tab}
-                                    </button>
-                                ))}
+                                        <option value="All">Tüm Fiyatlar</option>
+                                        <option value="Ücretsiz">Sadece Ücretsiz</option>
+                                        <option value="Ücretli">Sadece Ücretli</option>
+                                    </select>
+                                </div>
+
+                                <div className="filter-group">
+                                    <label>İşlem Hızı</label>
+                                    <select
+                                        className="filter-select"
+                                        value={speedFilter}
+                                        onChange={(e) => setSpeedFilter(e.target.value)}
+                                    >
+                                        <option value="All">Tüm Hızlar</option>
+                                        <option value="⚡ Hızlı">⚡ Hızlı Seç</option>
+                                        <option value="⏱️ Normal">⏱️ Normal Seç</option>
+                                        <option value="🐢 Yavaş">🐢 Yavaş Seç</option>
+                                    </select>
+                                </div>
+
+                                <div className="filter-group">
+                                    <label>Sağlayıcı (Marka)</label>
+                                    <select
+                                        className="filter-select"
+                                        value={brandFilter}
+                                        onChange={(e) => setBrandFilter(e.target.value)}
+                                    >
+                                        {BRAND_OPTIONS.map(brand => (
+                                            <option key={brand} value={brand}>
+                                                {brand === 'All' ? 'Tüm Markalar' : brand}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
 
                             <div className="model-grid">
@@ -251,26 +315,38 @@ export default function SettingsModal({ isOpen, onClose }) {
                                                 <div className="model-card-header" style={{ backgroundColor: brand.bg }}>
                                                     <span className="model-icon">{brand.icon}</span>
                                                     <span className="model-brand" style={{ color: brand.color }}>{brand.brand}</span>
-                                                    {model.is_free && <span className="free-badge" style={{
-                                                        marginLeft: 'auto',
-                                                        fontSize: '10px',
-                                                        padding: '2px 6px',
-                                                        backgroundColor: 'rgba(74, 222, 128, 0.2)',
-                                                        color: '#4ade80',
-                                                        borderRadius: '12px',
-                                                        fontWeight: 'bold',
-                                                        border: '1px solid rgba(74, 222, 128, 0.3)'
-                                                    }}>ÜCRETSİZ</span>}
-                                                    {!model.is_free && <span className="paid-badge" style={{
-                                                        marginLeft: 'auto',
-                                                        fontSize: '10px',
-                                                        padding: '2px 6px',
-                                                        backgroundColor: 'rgba(251, 191, 36, 0.2)',
-                                                        color: '#fbbf24',
-                                                        borderRadius: '12px',
-                                                        fontWeight: 'bold',
-                                                        border: '1px solid rgba(251, 191, 36, 0.3)'
-                                                    }}>ÜCRETLİ</span>}
+                                                    <div style={{ marginLeft: 'auto', display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                                        {model.speed && <span className="speed-badge" title="Model Tahmini işlem hızı" style={{
+                                                            fontSize: '10px',
+                                                            padding: '2px 6px',
+                                                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                                            color: 'var(--text-secondary)',
+                                                            borderRadius: '12px',
+                                                            fontWeight: 'bold',
+                                                            border: '1px solid rgba(255, 255, 255, 0.1)'
+                                                        }}>{model.speed}</span>}
+                                                        {model.is_free ? (
+                                                            <span className="free-badge" style={{
+                                                                fontSize: '10px',
+                                                                padding: '2px 6px',
+                                                                backgroundColor: 'rgba(74, 222, 128, 0.2)',
+                                                                color: '#4ade80',
+                                                                borderRadius: '12px',
+                                                                fontWeight: 'bold',
+                                                                border: '1px solid rgba(74, 222, 128, 0.3)'
+                                                            }}>ÜCRETSİZ</span>
+                                                        ) : (
+                                                            <span className="paid-badge" style={{
+                                                                fontSize: '10px',
+                                                                padding: '2px 6px',
+                                                                backgroundColor: 'rgba(251, 191, 36, 0.2)',
+                                                                color: '#fbbf24',
+                                                                borderRadius: '12px',
+                                                                fontWeight: 'bold',
+                                                                border: '1px solid rgba(251, 191, 36, 0.3)'
+                                                            }}>ÜCRETLİ</span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 <div className="model-card-body">
                                                     <h4 title={model.name}>{model.name.split(': ').pop() || model.name}</h4>
@@ -298,20 +374,6 @@ export default function SettingsModal({ isOpen, onClose }) {
                             </div>
                         </div>
 
-                        {/* 3. MANUEL MODEL EKLEME */}
-                        <form className="custom-model-adder" onSubmit={handleAddCustomModel}>
-                            <label>Katalogda Olmayan Özel Model Ekle:</label>
-                            <div className="custom-input-group">
-                                <input
-                                    type="text"
-                                    placeholder="örn: anthropic/claude-3-opus:beta"
-                                    value={customModel}
-                                    onChange={e => setCustomModel(e.target.value)}
-                                />
-                                <button type="submit" disabled={!customModel.trim()}>Ekle</button>
-                            </div>
-                        </form>
-
                     </div>
                 )}
 
@@ -323,12 +385,13 @@ export default function SettingsModal({ isOpen, onClose }) {
                     <button
                         className="settings-btn primary"
                         onClick={handleSave}
-                        disabled={isSaving || councilModels.filter(m => m.trim() !== '').length === 0}
+                        disabled={isSaving === true || councilModels.filter(m => m.trim() !== '').length === 0}
+                        style={isSaving === 'success' ? { background: '#4ade80', color: '#000' } : {}}
                     >
-                        {isSaving ? '...' : t('settings.save')}
+                        {isSaving === true ? 'Kaydediliyor...' : isSaving === 'success' ? 'Kaydedildi ✓' : t('settings.save')}
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

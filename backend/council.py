@@ -9,14 +9,15 @@ from . import config
 logger = logging.getLogger("llm-council.council")
 
 # Stage-level timeouts (seconds)
-STAGE1_TIMEOUT = 300.0  # 5 min for collecting all model responses
+STAGE1_TIMEOUT = 600.0  # 10 min for collecting all model responses
 STAGE2_TIMEOUT = 300.0  # 5 min for collecting rankings
 STAGE3_TIMEOUT = 180.0  # 3 min for chairman synthesis
 
 
 async def stage1_collect_responses(
     user_query: str,
-    conversation_history: Optional[List[Dict[str, str]]] = None
+    conversation_history: Optional[List[Dict[str, str]]] = None,
+    on_progress: Optional[callable] = None
 ) -> List[Dict[str, Any]]:
     """
     Stage 1: Collect individual responses from all council models.
@@ -36,7 +37,7 @@ async def stage1_collect_responses(
     try:
         # Query all models with staggering, wrapped in a stage-level timeout
         responses = await asyncio.wait_for(
-            query_models_parallel(config.COUNCIL_MODELS, messages),
+            query_models_parallel(config.COUNCIL_MODELS, messages, on_progress=on_progress),
             timeout=STAGE1_TIMEOUT
         )
     except asyncio.TimeoutError:
@@ -60,7 +61,8 @@ async def stage1_collect_responses(
 
 async def stage2_collect_rankings(
     user_query: str,
-    stage1_results: List[Dict[str, Any]]
+    stage1_results: List[Dict[str, Any]],
+    on_progress: Optional[callable] = None
 ) -> Tuple[List[Dict[str, Any]], Dict[str, str]]:
     """
     Stage 2: Each model ranks the anonymized responses.
@@ -123,7 +125,7 @@ Now provide your evaluation and ranking:"""
     # Get rankings from all council models, with stage-level timeout
     try:
         responses = await asyncio.wait_for(
-            query_models_parallel(config.COUNCIL_MODELS, messages),
+            query_models_parallel(config.COUNCIL_MODELS, messages, on_progress=on_progress),
             timeout=STAGE2_TIMEOUT
         )
     except asyncio.TimeoutError:

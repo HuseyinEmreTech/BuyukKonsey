@@ -83,6 +83,20 @@ export const api = {
   },
 
   /**
+   * Cancel a running background process for a conversation.
+   */
+  async cancelConversation(conversationId) {
+    const response = await fetch(
+      `${API_BASE}/api/conversations/${conversationId}/cancel`,
+      {
+        method: 'DELETE',
+      }
+    );
+    // Don't throw error if not found, it might have just finished
+    return response.json();
+  },
+
+  /**
    * Send a message and receive streaming updates.
    * @param {string} conversationId - The conversation ID
    * @param {string} content - The message content
@@ -91,7 +105,7 @@ export const api = {
    */
   async sendMessageStream(conversationId, content, onEvent) {
     const controller = new AbortController();
-    const CLIENT_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+    const CLIENT_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 
     const timeoutId = setTimeout(() => {
       controller.abort();

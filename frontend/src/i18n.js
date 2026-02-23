@@ -47,7 +47,7 @@ const translations = {
       'The Chairman is reviewing peer rankings...',
       'Refining the final response...'
     ],
-    'chat.estimatedTime': 'This process usually takes about 30-60 seconds.',
+    'chat.estimatedTime': 'Bu işlem, seçtiğiniz model sayısına göre 1-3 dakika sürebilir.',
     'chat.placeholder': 'Ask your question... (Shift+Enter for new line, Enter to send)',
     'chat.send': 'Send',
 
@@ -142,7 +142,7 @@ const translations = {
       'Başkan, akran puanlamalarını inceliyor...',
       'Nihai yanıt rafine ediliyor...'
     ],
-    'chat.estimatedTime': 'Bu işlem yaklaşık 30-60 saniye sürebilir.',
+    'chat.estimatedTime': 'Bu işlem, seçtiğiniz model sayısına göre 1-3 dakika sürebilir.',
     'chat.placeholder': 'Sorunuzu yazın... (Shift+Enter yeni satır, Enter gönder)',
     'chat.send': 'Gönder',
 

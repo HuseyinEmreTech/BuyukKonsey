@@ -58,6 +58,18 @@ function App() {
   }, [currentConversationId]);
 
   const handleNewConversation = async () => {
+    // Background check
+    if (isLoading && !window.confirm("İşlem arka planda devam etsin mi?\nİptal derseniz işlem durdurulacaktır.")) {
+      api.cancelConversation(currentConversationId).catch(console.error);
+      setIsLoading(false);
+    }
+
+    // Empty cleanup check
+    if (currentConversationId && currentConversation?.messages?.length === 0) {
+      api.deleteConversation(currentConversationId).catch(console.error);
+      setConversations((prev) => prev.filter(c => c.id !== currentConversationId));
+    }
+
     try {
       const newConv = await api.createConversation();
       setConversations([
@@ -71,6 +83,20 @@ function App() {
   };
 
   const handleSelectConversation = (id) => {
+    if (id === currentConversationId) return;
+
+    // Background check
+    if (isLoading && !window.confirm("İşlem arka planda devam etsin mi?\nİptal derseniz işlem durdurulacaktır.")) {
+      api.cancelConversation(currentConversationId).catch(console.error);
+      setIsLoading(false);
+    }
+
+    // Empty cleanup check
+    if (currentConversationId && currentConversation?.messages?.length === 0) {
+      api.deleteConversation(currentConversationId).catch(console.error);
+      setConversations((prev) => prev.filter(c => c.id !== currentConversationId));
+    }
+
     setCurrentConversationId(id);
   };
 
@@ -216,6 +242,22 @@ function App() {
               return { ...prev, messages };
             });
             setIsLoading(false);
+            break;
+
+          case 'progress':
+            setCurrentConversation((prev) => {
+              const messages = [...prev.messages];
+              const lastMsg = messages[messages.length - 1];
+              if (lastMsg && lastMsg.role === 'assistant') {
+                lastMsg.progress = {
+                  stage: event.stage,
+                  model: event.model,
+                  current: event.current,
+                  total: event.total,
+                };
+              }
+              return { ...prev, messages };
+            });
             break;
 
           default:

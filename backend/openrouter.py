@@ -76,7 +76,8 @@ async def query_models_parallel(
     models: List[str],
     messages: List[Dict[str, str]],
     stagger_delay: float = 2.0,
-    total_timeout: float = 600.0
+    total_timeout: float = 600.0,
+    on_progress: Optional[callable] = None
 ) -> Dict[str, Dict[str, Any]]:
     """
     Query multiple models SEQUENTIALLY to strictly avoid OpenRouter free tier rate limits.
@@ -87,6 +88,7 @@ async def query_models_parallel(
     formatted_responses = {}
 
     async def _run_all():
+        total = len(models)
         for i, model in enumerate(models):
             if i > 0:
                 await asyncio.sleep(stagger_delay)
@@ -96,6 +98,16 @@ async def query_models_parallel(
                 formatted_responses[model] = response
             except Exception as e:
                 formatted_responses[model] = {"content": f"Hata: {model} için işlem sırasında kritik hata oluştu: {str(e)}"}
+            
+            if on_progress:
+                try:
+                    # Call progress with model_id, current index (1-based), and total
+                    if asyncio.iscoroutinefunction(on_progress):
+                        await on_progress(model, i + 1, total)
+                    else:
+                        on_progress(model, i + 1, total)
+                except Exception as e:
+                    logger.error(f"Error calling on_progress for {model}: {e}")
 
     try:
         await asyncio.wait_for(_run_all(), timeout=total_timeout)

@@ -104,6 +104,17 @@ Son yapılan güncellemelerle birlikte proje çok daha dayanıklı hale gelmişt
 
 ---
 
+## 🎨 v1.2 (Büyük Arayüz ve Filtreleme Güncellemesi)
+Son sürümle birlikte konsey deneyimi çok daha profesyonel ve kullanışlı bir hale getirildi:
+- **Çok Boyutlu Filtreleme**: Ayarlar kataloğunda modelleri artık "Fiyatlandırma, İşlem Hızı ve Sağlayıcı Marka" olarak 3 farklı kategoride, birbiriyle eşzamanlı çalışacak şekilde (Örn: Sadece Ücretsiz + Hızlı) filtreleyebilirsiniz.
+- **Hız Göstergeleri**: API'den gelen yanıtlara göre her modelin işlem hızı (`⚡ Hızlı`, `⏱️ Normal`, `🐢 Yavaş`) analiz edilip çiplere eklendi.
+- **Arka Plan Süreç Takibi (Progress Bar)**: Modeller sorunuzu düşünürken ekranda anlık durum güncellemeleri ("Düşünüyor...", "Modeller hazırlanıyor...", "Başkan değerlendiriyor...") veren, işlemi iptal etmenizi sağlayan şık bir ilerleme çubuğu eklendi.
+- **Akıllı Sohbet Yönetimi**: Sayfadan ayrıldığınızda arkada çalışan bir model varsa size uyarı verir (`window.confirm`) veya tamamen boş olan, kazara açılmış sohbet odalarını otomatik temizler.
+- **Katalogda Olmayan Özel Model Ekleme**: Gizli veya deneysel olan modelleri direkt ID'lerini girerek konseye dahil edebilmeniz için özel model arama çubuğu arayüze sabitlendi.
+- **Ağ Dayanıklılığı**: `STAGE1_TIMEOUT` (Konsey bekleme süresi) gibi altyapı limitleri 600 saniyeye çekilerek yavaş modellerin sistemi çökertmesinin önüne geçildi.
+
+---
+
 ---
 
 Developed with ❤️ by [HuseyinEmreTech](https://github.com/HuseyinEmreTech)

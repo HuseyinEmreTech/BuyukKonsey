@@ -93,7 +93,22 @@ export default function ChatInterface({
                   {msg.loading?.stage1 && (
                     <div className="stage-loading">
                       <div className="spinner"></div>
-                      <span>{t('chat.stage1Loading')}</span>
+                      <div className="loading-info">
+                        <span>{t('chat.stage1Loading')}</span>
+                        {msg.progress?.stage === 1 && (
+                          <div className="progress-container">
+                            <div className="progress-bar">
+                              <div
+                                className="progress-fill"
+                                style={{ width: `${(msg.progress.current / msg.progress.total) * 100}%` }}
+                              ></div>
+                            </div>
+                            <span className="progress-text">
+                              {msg.progress.current} / {msg.progress.total} - {msg.progress.model.split('/').pop()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                   {msg.stage1 && <Stage1 responses={msg.stage1} />}
@@ -102,7 +117,22 @@ export default function ChatInterface({
                   {msg.loading?.stage2 && (
                     <div className="stage-loading">
                       <div className="spinner"></div>
-                      <span>{t('chat.stage2Loading')}</span>
+                      <div className="loading-info">
+                        <span>{t('chat.stage2Loading')}</span>
+                        {msg.progress?.stage === 2 && (
+                          <div className="progress-container">
+                            <div className="progress-bar">
+                              <div
+                                className="progress-fill"
+                                style={{ width: `${(msg.progress.current / msg.progress.total) * 100}%` }}
+                              ></div>
+                            </div>
+                            <span className="progress-text">
+                              {msg.progress.current} / {msg.progress.total} - {msg.progress.model.split('/').pop()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                   {msg.stage2 && (

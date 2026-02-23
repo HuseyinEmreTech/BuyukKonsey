@@ -13,8 +13,13 @@ from . import storage
 from . import config
 from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
 import httpx
+from typing import Optional
 
 app = FastAPI(title="LLM Council API")
+
+# Manage background tasks and event broadcasting
+ACTIVE_QUEUES: Dict[str, List[asyncio.Queue]] = {}
+ACTIVE_TASKS: Dict[str, asyncio.Task] = {}
 
 # Enable CORS for local development (origins configurable via CORS_ORIGINS env var)
 app.add_middleware(
@@ -149,90 +154,148 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
     }
 
 
+async def broadcast_event(conversation_id: str, event: Dict[str, Any]):
+    """Send an event to all active listeners for a conversation."""
+    if conversation_id in ACTIVE_QUEUES:
+        for q in ACTIVE_QUEUES[conversation_id]:
+            q.put_nowait(event)
+
+async def council_worker(conversation_id: str, content: str, history: List[Dict[str, str]], is_first_message: bool):
+    """Background worker that runs the 3-stage council and broadcasts progress."""
+    try:
+        # Start title generation in parallel
+        title_task = None
+        if is_first_message:
+            title_task = asyncio.create_task(generate_conversation_title(content))
+
+        # Stage 1: Collect responses
+        await broadcast_event(conversation_id, {'type': 'stage1_start'})
+        stage1_results = await stage1_collect_responses(
+            content, 
+            history,
+            on_progress=lambda m, c, t: asyncio.create_task(broadcast_event(conversation_id, {'type': 'progress', 'stage': 1, 'model': m, 'current': c, 'total': t}))
+        )
+        await broadcast_event(conversation_id, {'type': 'stage1_complete', 'data': stage1_results})
+
+        # Stage 2: Collect rankings
+        await broadcast_event(conversation_id, {'type': 'stage2_start'})
+        stage2_results, label_to_model = await stage2_collect_rankings(
+            content, 
+            stage1_results,
+            on_progress=lambda m, c, t: asyncio.create_task(broadcast_event(conversation_id, {'type': 'progress', 'stage': 2, 'model': m, 'current': c, 'total': t}))
+        )
+        aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
+        await broadcast_event(conversation_id, {
+            'type': 'stage2_complete', 
+            'data': stage2_results, 
+            'metadata': {'label_to_model': label_to_model, 'aggregate_rankings': aggregate_rankings}
+        })
+
+        # Stage 3: Synthesize final answer
+        await broadcast_event(conversation_id, {'type': 'stage3_start'})
+        stage3_result = await stage3_synthesize_final(content, stage1_results, stage2_results)
+        await broadcast_event(conversation_id, {'type': 'stage3_complete', 'data': stage3_result})
+
+        # Wait for title generation
+        if title_task:
+            title = await title_task
+            storage.update_conversation_title(conversation_id, title)
+            await broadcast_event(conversation_id, {'type': 'title_complete', 'data': {'title': title}})
+
+        # Save complete assistant message
+        storage.add_assistant_message(conversation_id, stage1_results, stage2_results, stage3_result)
+        await broadcast_event(conversation_id, {'type': 'complete'})
+
+    except asyncio.TimeoutError:
+        await broadcast_event(conversation_id, {
+            'type': 'error', 
+            'error_type': 'timeout', 
+            'message': 'Zaman aşımı: İşlem belirtilen sürede tamamlanamadı.'
+        })
+    except Exception as e:
+        await broadcast_event(conversation_id, {
+            'type': 'error', 
+            'error_type': 'unknown', 
+            'message': str(e)
+        })
+    finally:
+        # Cleanup
+        if conversation_id in ACTIVE_TASKS:
+            del ACTIVE_TASKS[conversation_id]
+        # We don't delete ACTIVE_QUEUES here; the streaming endpoint handles its own cleanup
+
 @app.post("/api/conversations/{conversation_id}/message/stream")
 async def send_message_stream(conversation_id: str, request: SendMessageRequest):
     """
     Send a message and stream the 3-stage council process.
-    Returns Server-Sent Events as each stage completes.
+    Uses a background worker to ensure persistence across disconnections.
     """
-    # Check if conversation exists
     conversation = storage.get_conversation(conversation_id)
     if conversation is None:
         raise HTTPException(status_code=404, detail="Conversation not found")
 
-    # Check if this is the first message
     is_first_message = len(conversation["messages"]) == 0
+    
+    # Add user message to storage immediately
+    storage.add_user_message(conversation_id, request.content)
+
+    # Build history
+    history = []
+    for msg in conversation["messages"][-10:]:
+        if msg["role"] == "user":
+            history.append({"role": "user", "content": msg["content"]})
+        elif msg["role"] == "assistant" and msg.get("stage3"):
+            history.append({"role": "assistant", "content": msg["stage3"].get("response", "")})
+
+    # Ensure worker is running
+    if conversation_id not in ACTIVE_TASKS:
+        ACTIVE_TASKS[conversation_id] = asyncio.create_task(
+            council_worker(conversation_id, request.content, history, is_first_message)
+        )
 
     async def event_generator():
+        queue = asyncio.Queue()
+        if conversation_id not in ACTIVE_QUEUES:
+            ACTIVE_QUEUES[conversation_id] = []
+        ACTIVE_QUEUES[conversation_id].append(queue)
+        
         try:
-            # Add user message
-            storage.add_user_message(conversation_id, request.content)
-
-            # Start title generation in parallel (don't await yet)
-            title_task = None
-            if is_first_message:
-                title_task = asyncio.create_task(generate_conversation_title(request.content))
-
-            # Build conversation history for context (last 10 messages, simplified)
-            history = []
-            for msg in conversation["messages"][-10:]:
-                if msg["role"] == "user":
-                    history.append({"role": "user", "content": msg["content"]})
-                elif msg["role"] == "assistant" and msg.get("stage3"):
-                    history.append({"role": "assistant", "content": msg["stage3"].get("response", "")})
-
-            # Stage 1: Collect responses
-            yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
-            stage1_results = await stage1_collect_responses(request.content, history)
-            yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
-
-            # Stage 2: Collect rankings
-            yield f"data: {json.dumps({'type': 'stage2_start'})}\n\n"
-            stage2_results, label_to_model = await stage2_collect_rankings(request.content, stage1_results)
-            aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
-            yield f"data: {json.dumps({'type': 'stage2_complete', 'data': stage2_results, 'metadata': {'label_to_model': label_to_model, 'aggregate_rankings': aggregate_rankings}})}\n\n"
-
-            # Stage 3: Synthesize final answer
-            yield f"data: {json.dumps({'type': 'stage3_start'})}\n\n"
-            stage3_result = await stage3_synthesize_final(request.content, stage1_results, stage2_results)
-            yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result})}\n\n"
-
-            # Wait for title generation if it was started
-            if title_task:
-                title = await title_task
-                storage.update_conversation_title(conversation_id, title)
-                yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
-
-            # Save complete assistant message
-            storage.add_assistant_message(
-                conversation_id,
-                stage1_results,
-                stage2_results,
-                stage3_result
-            )
-
-            # Send completion event
-            yield f"data: {json.dumps({'type': 'complete'})}\n\n"
-
-        except asyncio.TimeoutError:
-            yield f"data: {json.dumps({'type': 'error', 'error_type': 'timeout', 'message': 'Zaman aşımı: İşlem belirtilen sürede tamamlanamadı.'})}\n\n"
-        except Exception as e:
-            error_msg = str(e)
-            error_type = "unknown"
-            if "timeout" in error_msg.lower():
-                error_type = "timeout"
-            elif "context" in error_msg.lower() or "token" in error_msg.lower():
-                error_type = "context_limit"
-            yield f"data: {json.dumps({'type': 'error', 'error_type': error_type, 'message': error_msg})}\n\n"
+            while True:
+                event = await queue.get()
+                yield f"data: {json.dumps(event)}\n\n"
+                if event['type'] in ['complete', 'error']:
+                    break
+        finally:
+            if conversation_id in ACTIVE_QUEUES:
+                ACTIVE_QUEUES[conversation_id].remove(queue)
+                if not ACTIVE_QUEUES[conversation_id]:
+                    del ACTIVE_QUEUES[conversation_id]
 
     return StreamingResponse(
-        event_generator(),
+        event_generator(), 
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
         }
     )
+
+
+@app.delete("/api/conversations/{conversation_id}/cancel")
+async def cancel_conversation_task(conversation_id: str):
+    """Cancel a running background process for a conversation."""
+    if conversation_id in ACTIVE_TASKS:
+        task = ACTIVE_TASKS[conversation_id]
+        task.cancel()
+        del ACTIVE_TASKS[conversation_id]
+        
+        # Also clean up any active queues
+        if conversation_id in ACTIVE_QUEUES:
+            del ACTIVE_QUEUES[conversation_id]
+            
+        return {"status": "success", "message": "Görev iptal edildi"}
+    
+    return {"status": "not_found", "message": "Aktif bir görev bulunamadı"}
 
 
 @app.get("/api/settings", response_model=Settings)
@@ -248,6 +311,15 @@ async def update_settings(settings: Settings):
     config.reload_config()
     return {"status": "success"}
 
+
+def get_model_speed(model_id: str, name: str) -> str:
+    """Heuristic to determine an approximate model speed."""
+    s = f"{model_id} {name}".lower()
+    if any(x in s for x in ["turbo", "flash", "haiku", "8b", "mini", "instant", "fast", "lite"]):
+        return "⚡ Hızlı"
+    if any(x in s for x in ["pro", "opus", "70b", "405b", "huge", "large", "max", "r1"]):
+        return "🐢 Yavaş"
+    return "⏱️ Normal"
 
 @app.get("/api/models")
 async def list_available_models():
@@ -270,17 +342,18 @@ async def list_available_models():
                     "id": m["id"],
                     "name": m["name"],
                     "is_free": is_free,
-                    "pricing": pricing
+                    "pricing": pricing,
+                    "speed": get_model_speed(m["id"], m["name"])
                 })
             return models
     except Exception as e:
         print(f"Error fetching models: {e}")
         # Return common fallback models if API call fails
         return [
-            {"id": "openai/gpt-4o", "name": "GPT-4o", "is_free": False},
-            {"id": "google/gemini-2.0-pro-exp-02-05:free", "name": "Gemini 2.0 Pro", "is_free": True},
-            {"id": "anthropic/claude-3.5-sonnet", "name": "Claude 3.5 Sonnet", "is_free": False},
-            {"id": "deepseek/deepseek-chat", "name": "DeepSeek Chat", "is_free": False}
+            {"id": "openai/gpt-4o", "name": "GPT-4o", "is_free": False, "speed": "⚡ Hızlı"},
+            {"id": "google/gemini-2.0-pro-exp-02-05:free", "name": "Gemini 2.0 Pro", "is_free": True, "speed": "🐢 Yavaş"},
+            {"id": "anthropic/claude-3.5-sonnet", "name": "Claude 3.5 Sonnet", "is_free": False, "speed": "⏱️ Normal"},
+            {"id": "deepseek/deepseek-chat", "name": "DeepSeek Chat", "is_free": False, "speed": "⏱️ Normal"}
         ]
 
 
