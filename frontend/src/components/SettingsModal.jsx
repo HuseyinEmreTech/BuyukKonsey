@@ -24,6 +24,7 @@ export default function SettingsModal({ isOpen, onClose }) {
     const [chairmanModel, setChairmanModel] = useState('');
     const [availableModels, setAvailableModels] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [activeTab, setActiveTab] = useState('All');
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [customModel, setCustomModel] = useState('');
@@ -84,6 +85,33 @@ export default function SettingsModal({ isOpen, onClose }) {
         }
     };
 
+    const handleAutoSelectPremium = () => {
+        // En iyi, rasyonel, premium modellerden oluşan bir rüya takımı
+        const premiumModels = [
+            'anthropic/claude-3.5-sonnet',      // Mükemmel Sentez, İletişim, Mantık
+            'openai/gpt-4o',                   // Genel Zeka, Kodlama
+            'deepseek/deepseek-r1',            // Derin Mantık, Matematik (Premium versiyonu)
+            'meta-llama/llama-3.3-70b-instruct' // Açık Kaynak Lideri, Tutarlı Yargıç
+        ];
+
+        // Sadece mevcut olanları bulup ekle, yoksa sorun çıkartma
+        const availablePremium = availableModels
+            .filter(m => premiumModels.includes(m.id))
+            .map(m => m.id);
+
+        if (availablePremium.length > 0) {
+            setCouncilModels(availablePremium);
+            // Başkanı her zaman genel geçer mantık harikası Sonnet 3.5 yap
+            if (availablePremium.includes('anthropic/claude-3.5-sonnet')) {
+                setChairmanModel('anthropic/claude-3.5-sonnet');
+            } else {
+                setChairmanModel(availablePremium[0]);
+            }
+        } else {
+            alert('En iyi modeller listesi API üzerinden çekilemedi. Tekrar deneyin.');
+        }
+    };
+
     const handleAddCustomModel = (e) => {
         e.preventDefault();
         if (customModel.trim() && !councilModels.includes(customModel.trim())) {
@@ -92,15 +120,28 @@ export default function SettingsModal({ isOpen, onClose }) {
         }
     };
 
-    // Filter models based on search query
+    // Filter models based on search query and active tab
     const filteredModels = useMemo(() => {
-        if (!searchQuery.trim()) return availableModels;
-        const query = searchQuery.toLowerCase();
-        return availableModels.filter(m =>
-            m.name.toLowerCase().includes(query) ||
-            m.id.toLowerCase().includes(query)
-        );
-    }, [availableModels, searchQuery]);
+        let result = availableModels;
+
+        // Tab filtering
+        if (activeTab !== 'All') {
+            result = result.filter(m => getBrandInfo(m.id).brand === activeTab);
+        }
+
+        // Search filtering
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            result = result.filter(m =>
+                m.name.toLowerCase().includes(query) ||
+                m.id.toLowerCase().includes(query)
+            );
+        }
+
+        return result;
+    }, [availableModels, searchQuery, activeTab]);
+
+    const TABS = ['All', 'OpenAI', 'Anthropic', 'Google', 'Meta', 'DeepSeek', 'xAI', 'Mistral', 'Cohere', 'Nous', 'Diğer'];
 
     if (!isOpen) return null;
 
@@ -121,9 +162,19 @@ export default function SettingsModal({ isOpen, onClose }) {
 
                         {/* 1. SEÇİLİ ÖZET */}
                         <div className="selected-summary-panel">
+
                             {/* Konsey Üyeleri */}
                             <div className="summary-section">
-                                <label>⚖️ Seçili Konsey Üyeleri ({councilModels.length})</label>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                    <label style={{ marginBottom: 0 }}>⚖️ Seçili Konsey Üyeleri ({councilModels.length})</label>
+                                    <button
+                                        onClick={handleAutoSelectPremium}
+                                        className="magic-btn"
+                                        title="Bakiyeniz varsa, OpenAI, Anthropic ve DeepSeek'in en iyilerinden şampiyonlar ligi kurar."
+                                    >
+                                        ✨ Premium Kadro Kur
+                                    </button>
+                                </div>
                                 <div className="chips-container">
                                     {councilModels.length === 0 && <span className="empty-chip">Henüz konsey üyesi seçilmedi</span>}
                                     {councilModels.map(modelId => (
@@ -160,10 +211,24 @@ export default function SettingsModal({ isOpen, onClose }) {
                                 <input
                                     type="text"
                                     className="model-search-input"
-                                    placeholder="🔍 Llama, GPT-4, Gemini Ara..."
+                                    placeholder="🔍 Sistemde Ara..."
                                     value={searchQuery}
                                     onChange={e => setSearchQuery(e.target.value)}
                                 />
+                            </div>
+
+                            {/* TABS */}
+                            <div className="brand-tabs">
+                                {TABS.map(tab => (
+                                    <button
+                                        key={tab}
+                                        className={`brand-tab ${activeTab === tab ? 'active' : ''}`}
+                                        onClick={() => setActiveTab(tab)}
+                                        title={tab === 'All' ? 'Tüm Modeller' : tab}
+                                    >
+                                        {tab === 'All' ? 'Tümü' : tab}
+                                    </button>
+                                ))}
                             </div>
 
                             <div className="model-grid">
@@ -229,6 +294,9 @@ export default function SettingsModal({ isOpen, onClose }) {
                 )}
 
                 <div className="settings-footer">
+                    <div className="dev-credit" style={{ fontSize: '12px', color: 'var(--text-muted)', flex: 1 }}>
+                        Built with 🔥 by <strong>Hüseyin Emre</strong>
+                    </div>
                     <button className="settings-btn secondary" onClick={onClose}>{t('status.close')}</button>
                     <button
                         className="settings-btn primary"

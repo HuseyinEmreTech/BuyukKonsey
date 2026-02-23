@@ -51,6 +51,24 @@
     color: var(--text-primary);
 }
 
+.magic-btn {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #000;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.magic-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+}
+
 .chips-container {
     display: flex;
     flex-wrap: wrap;
@@ -128,6 +146,56 @@
 .model-search-input:focus {
     border-color: var(--accent-primary);
     outline: none;
+}
+
+.brand-tabs {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    /* For scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-primary) transparent;
+}
+
+.brand-tabs::-webkit-scrollbar {
+    height: 4px;
+}
+
+.brand-tabs::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.brand-tabs::-webkit-scrollbar-thumb {
+    background-color: var(--border-primary);
+    border-radius: 4px;
+}
+
+.brand-tab {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.brand-tab:hover {
+    background: var(--bg-glass);
+    color: var(--text-primary);
+    border-color: var(--border-primary);
+}
+
+.brand-tab.active {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+    box-shadow: 0 2px 8px rgba(var(--accent-primary-rgb), 0.3);
 }
 
 .model-grid {
