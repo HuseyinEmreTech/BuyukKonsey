@@ -1,24 +1,50 @@
 """3-stage LLM Council orchestration."""
 
-from typing import List, Dict, Any, Tuple
+import asyncio
+import logging
+from typing import List, Dict, Any, Tuple, Optional
 from .openrouter import query_models_parallel, query_model
 from . import config
 
+logger = logging.getLogger("llm-council.council")
 
-async def stage1_collect_responses(user_query: str) -> List[Dict[str, Any]]:
+# Stage-level timeouts (seconds)
+STAGE1_TIMEOUT = 300.0  # 5 min for collecting all model responses
+STAGE2_TIMEOUT = 300.0  # 5 min for collecting rankings
+STAGE3_TIMEOUT = 180.0  # 3 min for chairman synthesis
+
+
+async def stage1_collect_responses(
+    user_query: str,
+    conversation_history: Optional[List[Dict[str, str]]] = None
+) -> List[Dict[str, Any]]:
     """
     Stage 1: Collect individual responses from all council models.
 
     Args:
         user_query: The user's question
+        conversation_history: Optional list of previous messages for context
 
     Returns:
         List of dicts with 'model' and 'response' keys
     """
-    messages = [{"role": "user", "content": user_query}]
+    messages = []
+    if conversation_history:
+        messages.extend(conversation_history)
+    messages.append({"role": "user", "content": user_query})
 
-    # Query all models with staggering
-    responses = await query_models_parallel(config.COUNCIL_MODELS, messages)
+    try:
+        # Query all models with staggering, wrapped in a stage-level timeout
+        responses = await asyncio.wait_for(
+            query_models_parallel(config.COUNCIL_MODELS, messages),
+            timeout=STAGE1_TIMEOUT
+        )
+    except asyncio.TimeoutError:
+        # Return timeout error for all models
+        return [{
+            "model": model,
+            "response": f"Hata: Aşama 1 zaman aşımına uğradı ({int(STAGE1_TIMEOUT)}s). Model yanıt veremedi."
+        } for model in config.COUNCIL_MODELS]
 
     # Format results
     stage1_results = []
@@ -94,8 +120,20 @@ Now provide your evaluation and ranking:"""
 
     messages = [{"role": "user", "content": ranking_prompt}]
 
-    # Get rankings from all council models in parallel
-    responses = await query_models_parallel(config.COUNCIL_MODELS, messages)
+    # Get rankings from all council models, with stage-level timeout
+    try:
+        responses = await asyncio.wait_for(
+            query_models_parallel(config.COUNCIL_MODELS, messages),
+            timeout=STAGE2_TIMEOUT
+        )
+    except asyncio.TimeoutError:
+        # Return timeout error rankings
+        timeout_results = [{
+            "model": model,
+            "ranking": f"Hata: Aşama 2 zaman aşımına uğradı ({int(STAGE2_TIMEOUT)}s).",
+            "parsed_ranking": []
+        } for model in config.COUNCIL_MODELS]
+        return timeout_results, label_to_model
 
     # Format results
     stage2_results = []
@@ -161,8 +199,17 @@ Provide your final synthesized response now:"""
 
     messages = [{"role": "user", "content": chairman_prompt}]
 
-    # Query the chairman model
-    response = await query_model(config.CHAIRMAN_MODEL, messages)
+    # Query the chairman model with stage-level timeout
+    try:
+        response = await asyncio.wait_for(
+            query_model(config.CHAIRMAN_MODEL, messages),
+            timeout=STAGE3_TIMEOUT
+        )
+    except asyncio.TimeoutError:
+        return {
+            "model": config.CHAIRMAN_MODEL,
+            "response": f"Hata: Başkan sentez aşaması zaman aşımına uğradı ({int(STAGE3_TIMEOUT)}s). Lütfen daha kısa bir soru ile tekrar deneyin."
+        }
 
     content = response.get('content', '')
     if content.startswith("Hata:"):
@@ -297,18 +344,24 @@ Title:"""
     return title
 
 
-async def run_full_council(user_query: str) -> Tuple[List, List, Dict, Dict]:
+async def run_full_council(
+    user_query: str,
+    conversation_history: Optional[List[Dict[str, str]]] = None
+) -> Tuple[List, List, Dict, Dict]:
     """
     Run the complete 3-stage council process.
 
     Args:
         user_query: The user's question
+        conversation_history: Optional list of previous messages for context
 
     Returns:
         Tuple of (stage1_results, stage2_results, stage3_result, metadata)
     """
+    logger.info("Starting council with %d history messages", len(conversation_history or []))
+
     # Stage 1: Collect individual responses
-    stage1_results = await stage1_collect_responses(user_query)
+    stage1_results = await stage1_collect_responses(user_query, conversation_history)
 
     # If no models responded successfully, return error
     if not stage1_results:

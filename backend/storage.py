@@ -1,11 +1,37 @@
-"""JSON-based storage for conversations."""
+"""JSON-based storage for conversations with file locking and input validation."""
 
 import json
 import os
+import re
+import fcntl
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 from .config import DATA_DIR
+
+# Strict UUID v4 pattern for conversation IDs
+UUID_PATTERN = re.compile(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+    re.IGNORECASE
+)
+
+
+def validate_conversation_id(conversation_id: str) -> str:
+    """
+    Validate that conversation_id is a proper UUID to prevent path traversal.
+
+    Args:
+        conversation_id: The ID to validate
+
+    Returns:
+        The validated ID
+
+    Raises:
+        ValueError: If the ID is not a valid UUID
+    """
+    if not UUID_PATTERN.match(conversation_id):
+        raise ValueError(f"Invalid conversation ID format: {conversation_id}")
+    return conversation_id
 
 
 def ensure_data_dir():
@@ -15,7 +41,30 @@ def ensure_data_dir():
 
 def get_conversation_path(conversation_id: str) -> str:
     """Get the file path for a conversation."""
+    validate_conversation_id(conversation_id)
     return os.path.join(DATA_DIR, f"{conversation_id}.json")
+
+
+def _read_json_locked(path: str) -> Optional[Dict[str, Any]]:
+    """Read a JSON file with a shared (read) lock."""
+    if not os.path.exists(path):
+        return None
+    with open(path, 'r') as f:
+        fcntl.flock(f.fileno(), fcntl.LOCK_SH)
+        try:
+            return json.load(f)
+        finally:
+            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+
+
+def _write_json_locked(path: str, data: Dict[str, Any]):
+    """Write a JSON file with an exclusive (write) lock."""
+    with open(path, 'w') as f:
+        fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+        try:
+            json.dump(data, f, indent=2)
+        finally:
+            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
 
 
 def create_conversation(conversation_id: str) -> Dict[str, Any]:
@@ -37,10 +86,8 @@ def create_conversation(conversation_id: str) -> Dict[str, Any]:
         "messages": []
     }
 
-    # Save to file
     path = get_conversation_path(conversation_id)
-    with open(path, 'w') as f:
-        json.dump(conversation, f, indent=2)
+    _write_json_locked(path, conversation)
 
     return conversation
 
@@ -56,12 +103,7 @@ def get_conversation(conversation_id: str) -> Optional[Dict[str, Any]]:
         Conversation dict or None if not found
     """
     path = get_conversation_path(conversation_id)
-
-    if not os.path.exists(path):
-        return None
-
-    with open(path, 'r') as f:
-        return json.load(f)
+    return _read_json_locked(path)
 
 
 def save_conversation(conversation: Dict[str, Any]):
@@ -74,8 +116,7 @@ def save_conversation(conversation: Dict[str, Any]):
     ensure_data_dir()
 
     path = get_conversation_path(conversation['id'])
-    with open(path, 'w') as f:
-        json.dump(conversation, f, indent=2)
+    _write_json_locked(path, conversation)
 
 
 def list_conversations() -> List[Dict[str, Any]]:
@@ -91,9 +132,8 @@ def list_conversations() -> List[Dict[str, Any]]:
     for filename in os.listdir(DATA_DIR):
         if filename.endswith('.json'):
             path = os.path.join(DATA_DIR, filename)
-            with open(path, 'r') as f:
-                data = json.load(f)
-                # Return metadata only
+            data = _read_json_locked(path)
+            if data:
                 conversations.append({
                     "id": data["id"],
                     "created_at": data["created_at"],

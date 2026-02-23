@@ -1,0 +1,8 @@
+{
+    "council_models": [
+        "openai/gpt-4o-mini",
+        "anthropic/claude-3-5-haiku:beta",
+        "google/gemini-2.5-flash"
+    ],
+    "chairman_model": "openai/gpt-4o"
+}

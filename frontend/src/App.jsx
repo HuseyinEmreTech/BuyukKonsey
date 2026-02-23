@@ -198,6 +198,19 @@ function App() {
 
           case 'error':
             console.error('Stream error:', event.message);
+            // Show error in the assistant message so user can see it
+            setCurrentConversation((prev) => {
+              const messages = [...prev.messages];
+              const lastMsg = messages[messages.length - 1];
+              if (lastMsg && lastMsg.role === 'assistant') {
+                lastMsg.error = {
+                  type: event.error_type || 'unknown',
+                  message: event.message || 'Bilinmeyen bir hata oluştu.',
+                };
+                lastMsg.loading = { stage1: false, stage2: false, stage3: false };
+              }
+              return { ...prev, messages };
+            });
             setIsLoading(false);
             break;
 

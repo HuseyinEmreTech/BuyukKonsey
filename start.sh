@@ -22,7 +22,7 @@ if [ ! -d ".venv" ]; then
     echo -e "${RED}.venv bulunamadı, oluşturuluyor...${NC}"
     python3 -m venv .venv
     source .venv/bin/activate
-    pip install -r backend/requirements.txt
+    pip install .
 else
     source .venv/bin/activate
 fi

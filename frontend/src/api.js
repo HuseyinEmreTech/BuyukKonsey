@@ -90,42 +90,65 @@ export const api = {
    * @returns {Promise<void>}
    */
   async sendMessageStream(conversationId, content, onEvent) {
-    const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/message/stream`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ content }),
+    const controller = new AbortController();
+    const CLIENT_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      onEvent('error', {
+        type: 'error',
+        error_type: 'timeout',
+        message: 'İstemci zaman aşımı: Sunucu 5 dakika içinde yanıt veremedi.',
+      });
+    }, CLIENT_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(
+        `${API_BASE}/api/conversations/${conversationId}/message/stream`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ content }),
+          signal: controller.signal,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
       }
-    );
 
-    if (!response.ok) {
-      throw new Error('Failed to send message');
-    }
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
 
-      const chunk = decoder.decode(value);
-      const lines = chunk.split('\n');
-
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const data = line.slice(6);
-          try {
-            const event = JSON.parse(data);
-            onEvent(event.type, event);
-          } catch (e) {
-            console.error('Failed to parse SSE event:', e);
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            try {
+              const event = JSON.parse(data);
+              onEvent(event.type, event);
+            } catch (e) {
+              console.error('Failed to parse SSE event:', e);
+            }
           }
         }
       }
+    } catch (e) {
+      if (e.name === 'AbortError') {
+        // Already handled by the timeout callback above
+        return;
+      }
+      throw e;
+    } finally {
+      clearTimeout(timeoutId);
     }
   },
 

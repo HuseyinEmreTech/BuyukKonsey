@@ -2,15 +2,34 @@
 
 import os
 import json
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
 
+# --- Logging Setup ---
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger("llm-council")
+
 # OpenRouter API key
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+if not OPENROUTER_API_KEY:
+    logger.warning("OPENROUTER_API_KEY is not set! API calls will fail.")
 
 # OpenRouter API endpoint
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
+
+# CORS origins (comma-separated, from env or default)
+CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ORIGINS", "http://localhost:5173,http://localhost:3000"
+    ).split(",")
+]
 
 # Data directory for conversation storage
 DATA_DIR = "data/conversations"
@@ -33,7 +52,7 @@ def get_settings():
             with open(SETTINGS_FILE, "r") as f:
                 return json.load(f)
         except Exception as e:
-            print(f"Error loading settings: {e}")
+            logger.error("Error loading settings: %s", e)
     
     return {
         "council_models": DEFAULT_COUNCIL_MODELS,
@@ -48,6 +67,7 @@ def save_settings(council_models, chairman_model):
             "council_models": council_models,
             "chairman_model": chairman_model
         }, f, indent=4)
+    logger.info("Settings saved: %d council models, chairman=%s", len(council_models), chairman_model)
 
 # For backward compatibility and initial load
 _settings = get_settings()
@@ -60,3 +80,4 @@ def reload_config():
     settings = get_settings()
     COUNCIL_MODELS = settings["council_models"]
     CHAIRMAN_MODEL = settings["chairman_model"]
+    logger.info("Config reloaded: models=%s, chairman=%s", COUNCIL_MODELS, CHAIRMAN_MODEL)

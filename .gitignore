@@ -12,8 +12,8 @@ wheels/
 # Keys and secrets
 .env
 
-# Data files
-data/
+# Data files (keep settings, ignore conversations)
+data/conversations/
 
 # Frontend
 frontend/node_modules/

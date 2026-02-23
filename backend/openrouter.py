@@ -1,15 +1,18 @@
 """OpenRouter API client with robust error handling and rate limiting."""
 
 import asyncio
+import logging
 import httpx
 from typing import List, Dict, Any, Optional
 from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL
+
+logger = logging.getLogger("llm-council.openrouter")
 
 
 async def query_model(
     model: str,
     messages: List[Dict[str, str]],
-    timeout: float = 120.0
+    timeout: float = 180.0
 ) -> Dict[str, Any]:
     """
     Query a single model via OpenRouter API with robust error handling.
@@ -63,31 +66,46 @@ async def query_model(
     except httpx.HTTPStatusError as e:
         return {"content": f"Hata: {model} API hatası verdi ({e.response.status_code})."}
     except httpx.TimeoutException:
-        return {"content": f"Hata: {model} için zaman aşımı (Timeout) oluştu."}
+        return {"content": f"Hata: {model} için zaman aşımı (Timeout) oluştu. Model uzun metin işlerken yanıt veremedi.", "error_type": "timeout"}
     except Exception as e:
-        print(f"Unexpected error for {model}: {e}")
+        logger.exception("Unexpected error for %s", model)
         return {"content": f"Hata: {model} sorgulanırken beklenmedik bir hata oluştu: {str(e)}"}
 
 
 async def query_models_parallel(
     models: List[str],
     messages: List[Dict[str, str]],
-    stagger_delay: float = 3.5 # Increased delay for sequential processing
+    stagger_delay: float = 2.0,
+    total_timeout: float = 600.0
 ) -> Dict[str, Dict[str, Any]]:
     """
     Query multiple models SEQUENTIALLY to strictly avoid OpenRouter free tier rate limits.
     (Despite the name, we are running them sequentially for stability).
+
+    A total_timeout guard prevents the entire batch from hanging indefinitely.
     """
     formatted_responses = {}
-    
-    for i, model in enumerate(models):
-        if i > 0:
-            await asyncio.sleep(stagger_delay)
-            
-        try:
-            response = await query_model(model, messages)
-            formatted_responses[model] = response
-        except Exception as e:
-            formatted_responses[model] = {"content": f"Hata: {model} için işlem sırasında kritik hata oluştu: {str(e)}"}
+
+    async def _run_all():
+        for i, model in enumerate(models):
+            if i > 0:
+                await asyncio.sleep(stagger_delay)
+
+            try:
+                response = await query_model(model, messages)
+                formatted_responses[model] = response
+            except Exception as e:
+                formatted_responses[model] = {"content": f"Hata: {model} için işlem sırasında kritik hata oluştu: {str(e)}"}
+
+    try:
+        await asyncio.wait_for(_run_all(), timeout=total_timeout)
+    except asyncio.TimeoutError:
+        # Some models may have responded before the timeout
+        for model in models:
+            if model not in formatted_responses:
+                formatted_responses[model] = {
+                    "content": f"Hata: {model} toplam zaman aşımına ({int(total_timeout)}s) takıldı.",
+                    "error_type": "timeout"
+                }
 
     return formatted_responses

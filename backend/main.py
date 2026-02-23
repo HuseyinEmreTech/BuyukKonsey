@@ -16,10 +16,10 @@ import httpx
 
 app = FastAPI(title="LLM Council API")
 
-# Enable CORS for local development
+# Enable CORS for local development (origins configurable via CORS_ORIGINS env var)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=config.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -118,9 +118,18 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
         title = await generate_conversation_title(request.content)
         storage.update_conversation_title(conversation_id, title)
 
-    # Run the 3-stage council process
+    # Build conversation history for context (last 10 messages, simplified)
+    history = []
+    for msg in conversation["messages"][-10:]:
+        if msg["role"] == "user":
+            history.append({"role": "user", "content": msg["content"]})
+        elif msg["role"] == "assistant" and msg.get("stage3"):
+            history.append({"role": "assistant", "content": msg["stage3"].get("response", "")})
+
+    # Run the 3-stage council process with conversation context
     stage1_results, stage2_results, stage3_result, metadata = await run_full_council(
-        request.content
+        request.content,
+        conversation_history=history
     )
 
     # Add assistant message with all stages
@@ -164,9 +173,17 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             if is_first_message:
                 title_task = asyncio.create_task(generate_conversation_title(request.content))
 
+            # Build conversation history for context (last 10 messages, simplified)
+            history = []
+            for msg in conversation["messages"][-10:]:
+                if msg["role"] == "user":
+                    history.append({"role": "user", "content": msg["content"]})
+                elif msg["role"] == "assistant" and msg.get("stage3"):
+                    history.append({"role": "assistant", "content": msg["stage3"].get("response", "")})
+
             # Stage 1: Collect responses
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
-            stage1_results = await stage1_collect_responses(request.content)
+            stage1_results = await stage1_collect_responses(request.content, history)
             yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
 
             # Stage 2: Collect rankings
@@ -197,9 +214,16 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             # Send completion event
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
 
+        except asyncio.TimeoutError:
+            yield f"data: {json.dumps({'type': 'error', 'error_type': 'timeout', 'message': 'Zaman aşımı: İşlem belirtilen sürede tamamlanamadı.'})}\n\n"
         except Exception as e:
-            # Send error event
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+            error_msg = str(e)
+            error_type = "unknown"
+            if "timeout" in error_msg.lower():
+                error_type = "timeout"
+            elif "context" in error_msg.lower() or "token" in error_msg.lower():
+                error_type = "context_limit"
+            yield f"data: {json.dumps({'type': 'error', 'error_type': error_type, 'message': error_msg})}\n\n"
 
     return StreamingResponse(
         event_generator(),

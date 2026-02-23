@@ -85,11 +85,20 @@ Cevap: Dinamik isimlendirmeyi yapan API (Büyük ihtimalle OpenRouter üzerindek
 
 ---
 
-## 🧭 Gelecek Hedefleri (Roadmap)
+## 🧭 Gelecek Hedefleri ve Vizyon
 
-Topluluğun desteğiyle sisteme ileride eklenmesi hedeflenen vizyonlar:
-- [ ] **Kendi LLM'ini Ekle (Local AI)**: Bakiye limitlerine takılmamak için kullanıcının bilgisayarındaki (Ollama, LM Studio) yerel modelleri doğrudan Konsey'e sokabilme özelliği.
-- [ ] **Konsey Odaları**: Sadece "Kodlama Konseyi", "Felsefe Konseyi" veya "Hikaye Yazarları Konseyi" gibi odalar oluşturup, ilgili daldaki uzman modelleri otomatik eşleştirme.
-- [ ] **Modeller Arası Gerçek Vibe Tartışması**: (Şu anki gibi sadece düz analiz değil), konsey üyelerinin birbirlerinin laflarına "Katılmıyorum" diyerek yanıt ekleyebileceği derinleştirilmiş ajans (Multi-Agent) modeli.
+Projenin gelecekteki devasa hedefleri (Gerçek konsey senaryoları, daktilo gibi kelime kelime yazma, dosya yükleme, vb.) artık detaylı olarak **[ROADMAP.md](ROADMAP.md)** dosyasında tutulmaktadır.
+
+Siz de projeyi geliştirmek veya sıradaki büyük güncellemenin ne olacağını görmek isterseniz `ROADMAP.md` dosyasını inceleyebilirsiniz.
+
+---
+
+## 🔒 Güvenlik & Stabilite Güncellemesi (v1.1)
+Son yapılan güncellemelerle birlikte proje çok daha dayanıklı hale gelmiştir:
+- **Tam Güvenlik:** API anahtarınız `.env` dosyasında güvende tutulur ve asla GitHub'a sızmaz. Dışarıdan dosya erişim (Path Traversal) açıkları tamamen kapatılmıştır.
+- **Kesintisiz Akış:** Modeller çok uzun sürdüğünde çökmek yerine, ekranda zarif kırmızı hata mesajı (Zaman Aşımı / İçerik Sınırı Aşıldı) göstererek konseyi ayakta tutar.
+- **Konsey Hafızası:** Konsey üyeleri artık son 10 mesajınızı hatırlar! Böylece "Söylediğin kodu tekrar değerlendir" gibi komutları sorunsuz yerine getirirler.
+- **Daha Temiz Kod:** `storage.py` üzerinden asenkron dosya kilitleme (fcntl) ile veri kayıpları önlendi. Arayüz (`ChatInterface.jsx`) hata mesajlarını daha okunaklı şekilde gösterir.
+- **Temiz Kurulum:** `.env.example` şablonu eklendi.
 
 ---

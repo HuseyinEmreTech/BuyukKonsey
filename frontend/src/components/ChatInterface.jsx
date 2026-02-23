@@ -106,6 +106,31 @@ export default function ChatInterface({
                     </div>
                   )}
                   {msg.stage3 && <Stage3 finalResponse={msg.stage3} />}
+
+                  {/* Error Display */}
+                  {msg.error && (
+                    <div className="error-banner" style={{
+                      background: 'rgba(220, 38, 38, 0.1)',
+                      border: '1px solid rgba(220, 38, 38, 0.3)',
+                      borderRadius: '8px',
+                      padding: '12px 16px',
+                      marginTop: '12px',
+                      color: '#fca5a5',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '8px',
+                    }}>
+                      <span style={{ fontSize: '18px' }}>⚠️</span>
+                      <div>
+                        <strong style={{ display: 'block', marginBottom: '4px' }}>
+                          {msg.error.type === 'timeout' ? 'Zaman Aşımı' :
+                            msg.error.type === 'context_limit' ? 'İçerik Sınırı Aşıldı' :
+                              'Hata'}
+                        </strong>
+                        <span style={{ opacity: 0.8, fontSize: '13px' }}>{msg.error.message}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
