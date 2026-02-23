@@ -257,16 +257,30 @@ async def list_available_models():
             response = await client.get("https://openrouter.ai/api/v1/models")
             response.raise_for_status()
             data = response.json()
-            # Return a simplified list of models
-            return [{"id": m["id"], "name": m["name"]} for m in data.get("data", [])]
+            # Return a simplified list of models with pricing info
+            models = []
+            for m in data.get("data", []):
+                pricing = m.get("pricing", {})
+                # OpenRouter pricing is typically numeric strings or numbers
+                prompt_price = float(pricing.get("prompt", "0"))
+                completion_price = float(pricing.get("completion", "0"))
+                is_free = prompt_price == 0 and completion_price == 0
+                
+                models.append({
+                    "id": m["id"],
+                    "name": m["name"],
+                    "is_free": is_free,
+                    "pricing": pricing
+                })
+            return models
     except Exception as e:
         print(f"Error fetching models: {e}")
         # Return common fallback models if API call fails
         return [
-            {"id": "openai/gpt-4o", "name": "GPT-4o"},
-            {"id": "google/gemini-2.0-pro-exp-02-05:free", "name": "Gemini 2.0 Pro"},
-            {"id": "anthropic/claude-3.5-sonnet", "name": "Claude 3.5 Sonnet"},
-            {"id": "deepseek/deepseek-chat", "name": "DeepSeek Chat"}
+            {"id": "openai/gpt-4o", "name": "GPT-4o", "is_free": False},
+            {"id": "google/gemini-2.0-pro-exp-02-05:free", "name": "Gemini 2.0 Pro", "is_free": True},
+            {"id": "anthropic/claude-3.5-sonnet", "name": "Claude 3.5 Sonnet", "is_free": False},
+            {"id": "deepseek/deepseek-chat", "name": "DeepSeek Chat", "is_free": False}
         ]
 
 

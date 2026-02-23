@@ -125,7 +125,9 @@ export default function SettingsModal({ isOpen, onClose }) {
         let result = availableModels;
 
         // Tab filtering
-        if (activeTab !== 'All') {
+        if (activeTab === 'Ücretsiz') {
+            result = result.filter(m => m.is_free);
+        } else if (activeTab !== 'All') {
             result = result.filter(m => getBrandInfo(m.id).brand === activeTab);
         }
 
@@ -141,7 +143,7 @@ export default function SettingsModal({ isOpen, onClose }) {
         return result;
     }, [availableModels, searchQuery, activeTab]);
 
-    const TABS = ['All', 'OpenAI', 'Anthropic', 'Google', 'Meta', 'DeepSeek', 'xAI', 'Mistral', 'Cohere', 'Nous', 'Diğer'];
+    const TABS = ['All', 'Ücretsiz', 'OpenAI', 'Anthropic', 'Google', 'Meta', 'DeepSeek', 'xAI', 'Mistral', 'Cohere', 'Nous', 'Diğer'];
 
     if (!isOpen) return null;
 
@@ -249,6 +251,26 @@ export default function SettingsModal({ isOpen, onClose }) {
                                                 <div className="model-card-header" style={{ backgroundColor: brand.bg }}>
                                                     <span className="model-icon">{brand.icon}</span>
                                                     <span className="model-brand" style={{ color: brand.color }}>{brand.brand}</span>
+                                                    {model.is_free && <span className="free-badge" style={{
+                                                        marginLeft: 'auto',
+                                                        fontSize: '10px',
+                                                        padding: '2px 6px',
+                                                        backgroundColor: 'rgba(74, 222, 128, 0.2)',
+                                                        color: '#4ade80',
+                                                        borderRadius: '12px',
+                                                        fontWeight: 'bold',
+                                                        border: '1px solid rgba(74, 222, 128, 0.3)'
+                                                    }}>ÜCRETSİZ</span>}
+                                                    {!model.is_free && <span className="paid-badge" style={{
+                                                        marginLeft: 'auto',
+                                                        fontSize: '10px',
+                                                        padding: '2px 6px',
+                                                        backgroundColor: 'rgba(251, 191, 36, 0.2)',
+                                                        color: '#fbbf24',
+                                                        borderRadius: '12px',
+                                                        fontWeight: 'bold',
+                                                        border: '1px solid rgba(251, 191, 36, 0.3)'
+                                                    }}>ÜCRETLİ</span>}
                                                 </div>
                                                 <div className="model-card-body">
                                                     <h4 title={model.name}>{model.name.split(': ').pop() || model.name}</h4>
