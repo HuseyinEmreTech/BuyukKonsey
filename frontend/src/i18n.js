@@ -38,6 +38,16 @@ const translations = {
     'chat.stage2Loading': 'Running Stage 2: Peer rankings...',
     'chat.stage3Loading': 'Running Stage 3: Final synthesis...',
     'chat.consulting': 'Consulting the council...',
+    'chat.thinkingMessages': [
+      'The Council is gathering opinions...',
+      'Analyzing different perspectives...',
+      'Synthesizing a consensus...',
+      'Cross-referencing model outputs...',
+      'Evaluating the best approach...',
+      'The Chairman is reviewing peer rankings...',
+      'Refining the final response...'
+    ],
+    'chat.estimatedTime': 'This process usually takes about 30-60 seconds.',
     'chat.placeholder': 'Ask your question... (Shift+Enter for new line, Enter to send)',
     'chat.send': 'Send',
 
@@ -63,7 +73,7 @@ const translations = {
     // Onboarding
     'tutorial.title': 'Welcome to the LLM Council!',
     'tutorial.step1.title': '1. First Opinions (Stage 1)',
-    'tutorial.step1.desc': 'Your question is sent to three different elite AI models at once. Each provides its own independent expert perspective. You can explore these initial answers in the Stage 1 tabs.',
+    'tutorial.step1.desc': 'Your question is sent to as many elite AI models as you define at once. Each provides its own independent expert perspective. You can explore these initial answers in the Stage 1 tabs.',
     'tutorial.step2.title': '2. Blind Peer Review (Stage 2)',
     'tutorial.step2.desc': 'This is where the magic happens! Every model reviews and scores its peers anonymously. This process helps filter out errors, identifies the most logical reasoning, and builds a "Street Cred" ranking.',
     'tutorial.step3.title': '3. Final Synthesis (Stage 3)',
@@ -123,6 +133,16 @@ const translations = {
     'chat.stage2Loading': 'Aşama 2 çalışıyor: Karşılıklı değerlendirme...',
     'chat.stage3Loading': 'Aşama 3 çalışıyor: Son sentez yapılıyor...',
     'chat.consulting': 'Konsey\'e danışılıyor...',
+    'chat.thinkingMessages': [
+      'Konsey görüşleri topluyor...',
+      'Farklı perspektifler analiz ediliyor...',
+      'Ortak bir payda sentezleniyor...',
+      'Model çıktıları karşılaştırılıyor...',
+      'En iyi yaklaşım değerlendiriliyor...',
+      'Başkan, akran puanlamalarını inceliyor...',
+      'Nihai yanıt rafine ediliyor...'
+    ],
+    'chat.estimatedTime': 'Bu işlem yaklaşık 30-60 saniye sürebilir.',
     'chat.placeholder': 'Sorunuzu yazın... (Shift+Enter yeni satır, Enter gönder)',
     'chat.send': 'Gönder',
 
@@ -148,7 +168,7 @@ const translations = {
     // Onboarding
     'tutorial.title': 'Büyük Konsey\'e Hoş Geldiniz!',
     'tutorial.step1.title': '1. İlk Uzman Görüşleri (Aşama 1)',
-    'tutorial.step1.desc': 'Sorunuz aynı anda üç farklı elit yapay zeka modeline gönderilir. Her biri kendi bağımsız uzmanlık perspektifini sunar. Bu ham yanıtları Aşama 1 sekmesinde detaylıca inceleyebilirsiniz.',
+    'tutorial.step1.desc': 'Sorunuz aynı anda belirlediğiniz kadar elit yapay zeka modeline gönderilir. Her biri kendi bağımsız uzmanlık perspektifini sunar. Bu ham yanıtları Aşama 1 sekmesinde detaylıca inceleyebilirsiniz.',
     'tutorial.step2.title': '2. Kör Hakem Değerlendirmesi (Aşama 2)',
     'tutorial.step2.desc': 'İşin tılsımı burada! Her model, meslektaşlarının yanıtlarını anonim olarak inceler ve puanlar. Bu süreç hataları eler, en güçlü mantığı belirler ve modeller arası bir "İtibar Sıralaması" (Street Cred) oluşturur.',
     'tutorial.step3.title': '3. Büyük Sentez (Aşama 3)',

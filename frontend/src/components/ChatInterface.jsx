@@ -12,8 +12,23 @@ export default function ChatInterface({
   isLoading,
 }) {
   const [input, setInput] = useState('');
+  const [msgIndex, setMsgIndex] = useState(0);
   const messagesEndRef = useRef(null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  const thinkingMessages = t('chat.thinkingMessages') || [];
+
+  useEffect(() => {
+    let interval;
+    if (isLoading && thinkingMessages.length > 0) {
+      interval = setInterval(() => {
+        setMsgIndex((prev) => (prev + 1) % thinkingMessages.length);
+      }, 4000);
+    } else {
+      setMsgIndex(0);
+    }
+    return () => clearInterval(interval);
+  }, [isLoading, thinkingMessages.length]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -139,8 +154,19 @@ export default function ChatInterface({
 
         {isLoading && (
           <div className="loading-indicator">
-            <div className="spinner"></div>
-            <span>{t('chat.consulting')}</span>
+            <div className="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div className="loading-content">
+              <span className="loading-text">
+                {thinkingMessages.length > 0 ? thinkingMessages[msgIndex] : t('chat.consulting')}
+              </span>
+              <span className="estimated-time">
+                {t('chat.estimatedTime')}
+              </span>
+            </div>
           </div>
         )}
 
@@ -162,8 +188,11 @@ export default function ChatInterface({
             type="submit"
             className="send-button"
             disabled={!input.trim() || isLoading}
+            title={t('chat.send')}
           >
-            {t('chat.send')}
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" style={{ width: '20px', height: '20px' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.125A59.769 59.769 0 0121.485 12 59.768 59.768 0 013.27 20.875L5.999 12Zm0 0h7.5" />
+            </svg>
           </button>
         </form>
       )}
