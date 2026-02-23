@@ -1,14 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../api';
 import './SettingsModal.css';
+
+// Brand info mapping based on model ID prefix
+const getBrandInfo = (modelId) => {
+    const id = modelId.toLowerCase();
+    if (id.includes('openai/')) return { icon: '🟢', brand: 'OpenAI', bg: 'rgba(16, 163, 127, 0.15)', color: '#10a37f' };
+    if (id.includes('anthropic/')) return { icon: '🟤', brand: 'Anthropic', bg: 'rgba(217, 119, 87, 0.15)', color: '#d97757' };
+    if (id.includes('google/')) return { icon: '🔵', brand: 'Google', bg: 'rgba(66, 133, 244, 0.15)', color: '#8ab4f8' };
+    if (id.includes('meta-llama/')) return { icon: '🥽', brand: 'Meta', bg: 'rgba(6, 104, 225, 0.15)', color: '#6fb5ff' };
+    if (id.includes('x-ai/')) return { icon: '✖️', brand: 'xAI', bg: 'rgba(255, 255, 255, 0.1)', color: '#ffffff' };
+    if (id.includes('deepseek/')) return { icon: '🐋', brand: 'DeepSeek', bg: 'rgba(77, 105, 236, 0.15)', color: '#4d69ec' };
+    if (id.includes('mistralai/')) return { icon: '🌪️', brand: 'Mistral', bg: 'rgba(251, 169, 25, 0.15)', color: '#fba919' };
+    if (id.includes('cohere/')) return { icon: '🪨', brand: 'Cohere', bg: 'rgba(57, 89, 77, 0.15)', color: '#88a399' };
+    if (id.includes('nousresearch/')) return { icon: '🧠', brand: 'Nous', bg: 'rgba(255, 100, 100, 0.15)', color: '#ff6464' };
+    return { icon: '🤖', brand: 'Diğer', bg: 'var(--bg-secondary)', color: 'var(--text-secondary)' };
+};
 
 export default function SettingsModal({ isOpen, onClose }) {
     const { t } = useLanguage();
     const [councilModels, setCouncilModels] = useState([]);
     const [chairmanModel, setChairmanModel] = useState('');
+    const [availableModels, setAvailableModels] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [customModel, setCustomModel] = useState('');
 
     useEffect(() => {
         if (isOpen) {
@@ -19,25 +37,33 @@ export default function SettingsModal({ isOpen, onClose }) {
     const loadData = async () => {
         setIsLoading(true);
         try {
-            const settings = await api.getSettings();
+            // Load both settings and available models concurrently
+            const [settings, models] = await Promise.all([
+                api.getSettings(),
+                api.getAvailableModels().catch(() => []) // Fallback to empty if api fails
+            ]);
+
             setCouncilModels(settings.council_models || []);
             setChairmanModel(settings.chairman_model || '');
+
+            // Validate if array otherwise empty list
+            setAvailableModels(Array.isArray(models) ? models : []);
         } catch (error) {
-            console.error('Error loading settings:', error);
+            console.error('Error loading settings/models:', error);
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleSave = async () => {
-        const filteredCouncil = councilModels.filter(m => m.trim() !== '');
+        const filteredCouncil = councilModels.filter(m => m && m.trim() !== '');
         if (filteredCouncil.length === 0) return;
 
         setIsSaving(true);
         try {
             await api.updateSettings({
                 council_models: filteredCouncil,
-                chairman_model: chairmanModel.trim() || filteredCouncil[0]
+                chairman_model: chairmanModel && chairmanModel.trim() !== '' ? chairmanModel.trim() : filteredCouncil[0]
             });
             onClose();
         } catch (error) {
@@ -48,19 +74,33 @@ export default function SettingsModal({ isOpen, onClose }) {
         }
     };
 
-    const updateCouncilModel = (index, value) => {
-        const newModels = [...councilModels];
-        newModels[index] = value;
-        setCouncilModels(newModels);
+    const removeCouncilModel = (idToRemove) => {
+        setCouncilModels(councilModels.filter(id => id !== idToRemove));
     };
 
-    const addCouncilModel = () => {
-        setCouncilModels([...councilModels, '']);
+    const addCouncilModel = (id) => {
+        if (!councilModels.includes(id)) {
+            setCouncilModels([...councilModels, id]);
+        }
     };
 
-    const removeCouncilModel = (index) => {
-        setCouncilModels(councilModels.filter((_, i) => i !== index));
+    const handleAddCustomModel = (e) => {
+        e.preventDefault();
+        if (customModel.trim() && !councilModels.includes(customModel.trim())) {
+            setCouncilModels([...councilModels, customModel.trim()]);
+            setCustomModel('');
+        }
     };
+
+    // Filter models based on search query
+    const filteredModels = useMemo(() => {
+        if (!searchQuery.trim()) return availableModels;
+        const query = searchQuery.toLowerCase();
+        return availableModels.filter(m =>
+            m.name.toLowerCase().includes(query) ||
+            m.id.toLowerCase().includes(query)
+        );
+    }, [availableModels, searchQuery]);
 
     if (!isOpen) return null;
 
@@ -69,57 +109,121 @@ export default function SettingsModal({ isOpen, onClose }) {
             <div className="modal-content settings-modal glass-effect">
                 <button className="modal-close" onClick={onClose}>&times;</button>
 
-                <h2 className="settings-title">{t('settings.title')}</h2>
+                <h2 className="settings-title">✨ Modelleri Yapılandır</h2>
 
                 {isLoading ? (
-                    <div className="settings-loading">{t('settings.loading')}</div>
+                    <div className="settings-loading">
+                        <div className="spinner"></div>
+                        <p style={{ marginTop: '12px' }}>Modeller yükleniyor...</p>
+                    </div>
                 ) : (
                     <div className="settings-body">
-                        <div className="info-box free-tier-info">
-                            <span className="info-icon">💡</span>
-                            <p>{t('settings.freeTierInfo')}</p>
-                        </div>
 
-                        <div className="settings-section">
-                            <h3>{t('settings.councilTitle')}</h3>
-                            <p className="section-desc">{t('settings.councilDesc')}</p>
+                        {/* 1. SEÇİLİ ÖZET */}
+                        <div className="selected-summary-panel">
+                            {/* Konsey Üyeleri */}
+                            <div className="summary-section">
+                                <label>⚖️ Seçili Konsey Üyeleri ({councilModels.length})</label>
+                                <div className="chips-container">
+                                    {councilModels.length === 0 && <span className="empty-chip">Henüz konsey üyesi seçilmedi</span>}
+                                    {councilModels.map(modelId => (
+                                        <div key={`c-${modelId}`} className="model-chip" title={modelId}>
+                                            <span className="chip-brand">{getBrandInfo(modelId).icon}</span>
+                                            <span className="chip-text">{modelId.split('/').pop()}</span>
+                                            <button className="chip-remove" onClick={() => removeCouncilModel(modelId)}>&times;</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
 
-                            <div className="model-input-list">
-                                {councilModels.map((model, index) => (
-                                    <div key={index} className="model-input-row">
-                                        <input
-                                            type="text"
-                                            className="model-input"
-                                            value={model}
-                                            placeholder="google/gemini-2.0-flash-exp:free"
-                                            onChange={(e) => updateCouncilModel(index, e.target.value)}
-                                        />
-                                        <button
-                                            className="remove-model-btn"
-                                            onClick={() => removeCouncilModel(index)}
-                                            title="Kaldır"
-                                        >
-                                            &times;
-                                        </button>
-                                    </div>
-                                ))}
-                                <button className="add-model-btn" onClick={addCouncilModel}>
-                                    + {t('sidebar.newConversation')}
-                                </button>
+                            {/* Başkan */}
+                            <div className="summary-section">
+                                <label>👑 Konsey Başkanı</label>
+                                <div className="chips-container">
+                                    {chairmanModel ? (
+                                        <div className="model-chip chairman-chip" title={chairmanModel}>
+                                            <span className="chip-brand">{getBrandInfo(chairmanModel).icon}</span>
+                                            <span className="chip-text">{chairmanModel.split('/').pop()}</span>
+                                            <button className="chip-remove" onClick={() => setChairmanModel('')}>&times;</button>
+                                        </div>
+                                    ) : (
+                                        <span className="empty-chip warning">⚠️ Başkan seçilmedi (İlk konsey üyesi atanır)</span>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
-                        <div className="settings-section">
-                            <h3>{t('settings.chairmanTitle')}</h3>
-                            <p className="section-desc">{t('settings.chairmanDesc')}</p>
-                            <input
-                                type="text"
-                                className="chairman-input"
-                                value={chairmanModel}
-                                placeholder="google/gemini-2.0-pro-exp-02-05:free"
-                                onChange={(e) => setChairmanModel(e.target.value)}
-                            />
+                        {/* 2. MODEL ARAMA VE SEÇME IZGARASI */}
+                        <div className="model-picker-section">
+                            <div className="picker-header">
+                                <h3>Katalogdan Model Seçin</h3>
+                                <input
+                                    type="text"
+                                    className="model-search-input"
+                                    placeholder="🔍 Llama, GPT-4, Gemini Ara..."
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="model-grid">
+                                {availableModels.length === 0 ? (
+                                    <div className="models-error">
+                                        Modeller API'den çekilemedi. Özel ekleme kutusunu kullanabilirsiniz.
+                                    </div>
+                                ) : filteredModels.length === 0 ? (
+                                    <div className="models-error">Aradığınız model bulunamadı.</div>
+                                ) : (
+                                    filteredModels.map(model => {
+                                        const isCouncil = councilModels.includes(model.id);
+                                        const isChairman = chairmanModel === model.id;
+                                        const brand = getBrandInfo(model.id);
+
+                                        return (
+                                            <div key={model.id} className={`model-card ${isCouncil ? 'selected-council' : ''} ${isChairman ? 'selected-chairman' : ''}`}>
+                                                <div className="model-card-header" style={{ backgroundColor: brand.bg }}>
+                                                    <span className="model-icon">{brand.icon}</span>
+                                                    <span className="model-brand" style={{ color: brand.color }}>{brand.brand}</span>
+                                                </div>
+                                                <div className="model-card-body">
+                                                    <h4 title={model.name}>{model.name.split(': ').pop() || model.name}</h4>
+                                                    <div className="model-id" title={model.id}>{model.id.split('/').pop()}</div>
+                                                </div>
+                                                <div className="model-card-actions">
+                                                    <button
+                                                        className={`card-btn council-btn ${isCouncil ? 'active' : ''}`}
+                                                        onClick={() => isCouncil ? removeCouncilModel(model.id) : addCouncilModel(model.id)}
+                                                    >
+                                                        {isCouncil ? '✓ Konseyde' : '+ Konseye Ekle'}
+                                                    </button>
+                                                    <button
+                                                        className={`card-btn chairman-btn ${isChairman ? 'active' : ''}`}
+                                                        onClick={() => setChairmanModel(isChairman ? '' : model.id)}
+                                                    >
+                                                        {isChairman ? '👑 Başkan' : 'Başkan Yap'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
                         </div>
+
+                        {/* 3. MANUEL MODEL EKLEME */}
+                        <form className="custom-model-adder" onSubmit={handleAddCustomModel}>
+                            <label>Katalogda Olmayan Özel Model Ekle:</label>
+                            <div className="custom-input-group">
+                                <input
+                                    type="text"
+                                    placeholder="örn: anthropic/claude-3-opus:beta"
+                                    value={customModel}
+                                    onChange={e => setCustomModel(e.target.value)}
+                                />
+                                <button type="submit" disabled={!customModel.trim()}>Ekle</button>
+                            </div>
+                        </form>
+
                     </div>
                 )}
 

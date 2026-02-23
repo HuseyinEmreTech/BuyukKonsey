@@ -181,6 +181,17 @@ export const api = {
   },
 
   /**
+   * Fetch available models from OpenRouter via backend.
+   */
+  async getAvailableModels() {
+    const response = await fetch(`${API_BASE}/api/models`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch available models');
+    }
+    return response.json();
+  },
+
+  /**
    * List available models from OpenRouter.
    */
   async listModels() {
