@@ -103,3 +103,7 @@ Son yapılan güncellemelerle birlikte proje çok daha dayanıklı hale gelmişt
 - **Temiz Kurulum:** `.env.example` şablonu eklendi.
 
 ---
+
+---
+
+Developed with ❤️ by [HuseyinEmreTech](https://github.com/HuseyinEmreTech)
