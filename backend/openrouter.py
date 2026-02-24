@@ -4,7 +4,7 @@ import asyncio
 import logging
 import httpx
 from typing import List, Dict, Any, Optional
-from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL
+from . import config
 
 logger = logging.getLogger("llm-council.openrouter")
 
@@ -21,7 +21,7 @@ async def query_model(
         Response dict with 'content' (either model output or error message)
     """
     headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Authorization": f"Bearer {config.OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
         "HTTP-Referer": "https://github.com/karpathy/llm-council", # Recommended by OpenRouter
         "X-Title": "LLM Council",
@@ -35,7 +35,7 @@ async def query_model(
     try:
         async with httpx.AsyncClient(timeout=timeout) as client:
             response = await client.post(
-                OPENROUTER_API_URL,
+                config.OPENROUTER_API_URL,
                 headers=headers,
                 json=payload
             )

@@ -17,6 +17,7 @@ const getBrandInfo = (modelId) => {
     if (id.includes('mistralai/')) return { icon: <BrandLogo brand="Mistral" />, brand: 'Mistral', bg: 'rgba(251, 169, 25, 0.15)', color: '#fba919', desc: 'Avrupa Çıkışlı & Etkili' };
     if (id.includes('cohere/')) return { icon: <BrandLogo brand="Default" />, brand: 'Cohere', bg: 'rgba(57, 89, 77, 0.15)', color: '#88a399', desc: 'Kurumsal Seviye Mantık' };
     if (id.includes('nousresearch/')) return { icon: <BrandLogo brand="Default" />, brand: 'Nous', bg: 'rgba(255, 100, 100, 0.15)', color: '#ff6464', desc: 'Topluluk Odaklı & Özgür' };
+    if (id.includes('qwen/')) return { icon: <BrandLogo brand="Default" />, brand: 'Qwen', bg: 'rgba(115, 75, 226, 0.15)', color: '#9b7dff', desc: 'Çok Dilli & Güçlü Kodlama' };
     return { icon: <BrandLogo brand="Default" />, brand: 'Diğer', bg: 'var(--bg-secondary)', color: 'var(--text-secondary)', desc: 'Ekstra Topluluk Modeli' };
 };
 
@@ -98,30 +99,71 @@ export default function SettingsModal({ isOpen, onClose }) {
     };
 
     const handleAutoSelectPremium = () => {
-        // En iyi, rasyonel, premium modellerden oluşan bir rüya takımı
+        // Premium: Hız + Kalite dengesi (hızlı ama güçlü modeller)
         const premiumModels = [
-            'anthropic/claude-3.5-sonnet',      // Mükemmel Sentez, İletişim, Mantık
-            'openai/gpt-4o',                   // Genel Zeka, Kodlama
-            'deepseek/deepseek-r1',            // Derin Mantık, Matematik (Premium versiyonu)
-            'meta-llama/llama-3.3-70b-instruct' // Açık Kaynak Lideri, Tutarlı Yargıç
+            'openai/gpt-4o',                       // Hızlı, genel zeka lideri
+            'anthropic/claude-3.5-sonnet',         // Hızlı, mükemmel sentez
+            'google/gemini-2.0-flash-exp',         // Ultra hızlı, kaliteli
+            'deepseek/deepseek-chat',              // Hızlı V3, güçlü kodlama
         ];
 
-        // Sadece mevcut olanları bulup ekle, yoksa sorun çıkartma
         const availablePremium = availableModels
             .filter(m => premiumModels.includes(m.id))
             .map(m => m.id);
 
         if (availablePremium.length > 0) {
             setCouncilModels(availablePremium);
-            // Başkanı her zaman genel geçer mantık harikası Sonnet 3.5 yap
-            // Başkanı her zaman genel geçer mantık harikası Sonnet 3.5 yap
             if (availablePremium.includes('anthropic/claude-3.5-sonnet')) {
                 setChairmanModel('anthropic/claude-3.5-sonnet');
-            } else if (availablePremium.length > 0) {
+            } else {
                 setChairmanModel(availablePremium[0]);
             }
         } else {
-            alert('En iyi modeller listesi API üzerinden çekilemedi. Tekrar deneyin.');
+            alert('Premium modeller API üzerinden çekilemedi. Tekrar deneyin.');
+        }
+    };
+
+    const handleAutoSelectFree = () => {
+        // Ücretsiz: Hız + Kalite dengesi (sıfır maliyet, hızlı modeller)
+        const freeModels = [
+            'google/gemini-2.0-flash-exp:free',            // Ultra hızlı, ücretsiz
+            'meta-llama/llama-4-maverick:free',             // Yeni nesil Llama, hızlı
+            'meta-llama/llama-3.3-70b-instruct:free',      // Kanıtlanmış, tutarlı
+            'qwen/qwen3-235b-a22b:free',                   // Çok dilli, güçlü
+        ];
+
+        // Fallback listesi
+        const fallbackFreeModels = [
+            'google/gemini-2.0-pro-exp-02-05:free',
+            'deepseek/deepseek-chat:free',
+            'qwen/qwen3-coder:free',
+        ];
+
+        let availableFree = availableModels
+            .filter(m => freeModels.includes(m.id))
+            .map(m => m.id);
+
+        if (availableFree.length === 0) {
+            availableFree = availableModels
+                .filter(m => fallbackFreeModels.includes(m.id))
+                .map(m => m.id);
+        }
+
+        if (availableFree.length === 0) {
+            availableFree = availableModels
+                .filter(m => m.is_free)
+                .slice(0, 4)
+                .map(m => m.id);
+        }
+
+        if (availableFree.length > 0) {
+            setCouncilModels(availableFree);
+            const preferredChairman = availableFree.find(id => id.includes('gemini')) ||
+                availableFree.find(id => id.includes('llama')) ||
+                availableFree[0];
+            setChairmanModel(preferredChairman);
+        } else {
+            alert('Ücretsiz model bulunamadı. API bağlantısını kontrol edin.');
         }
     };
 
@@ -166,7 +208,7 @@ export default function SettingsModal({ isOpen, onClose }) {
         return result;
     }, [availableModels, searchQuery, priceFilter, speedFilter, brandFilter]);
 
-    const BRAND_OPTIONS = ['All', 'OpenAI', 'Anthropic', 'Google', 'Meta', 'DeepSeek', 'xAI', 'Mistral', 'Cohere', 'Nous', 'Diğer'];
+    const BRAND_OPTIONS = ['All', 'OpenAI', 'Anthropic', 'Google', 'Meta', 'DeepSeek', 'Qwen', 'xAI', 'Mistral', 'Cohere', 'Nous', 'Diğer'];
 
     if (!isOpen) return null;
 
@@ -188,13 +230,22 @@ export default function SettingsModal({ isOpen, onClose }) {
                             <div className="summary-section">
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                                     <h3 style={{ margin: 0 }}>{t('settings.councilTable')}</h3>
-                                    <button
-                                        onClick={handleAutoSelectPremium}
-                                        className="magic-btn"
-                                        title={t('settings.premiumKadroTitle')}
-                                    >
-                                        {t('settings.premiumKadro')}
-                                    </button>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button
+                                            onClick={handleAutoSelectFree}
+                                            className="magic-btn free-magic-btn"
+                                            title={t('settings.freeKadroTitle')}
+                                        >
+                                            {t('settings.freeKadro')}
+                                        </button>
+                                        <button
+                                            onClick={handleAutoSelectPremium}
+                                            className="magic-btn"
+                                            title={t('settings.premiumKadroTitle')}
+                                        >
+                                            {t('settings.premiumKadro')}
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <CouncilTable
@@ -361,7 +412,7 @@ export default function SettingsModal({ isOpen, onClose }) {
 
                 <div className="settings-footer">
                     <div className="dev-credit" style={{ fontSize: '12px', color: 'var(--text-muted)', flex: 1 }}>
-                        Built with 🔥 by <a href="https://github.com/HuseyinEmreTech" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}><strong>Hüseyin Emre</strong></a>
+                        Developed by <a href="https://github.com/HuseyinEmreTech" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}><strong>Hüseyin Emre</strong></a>
                     </div>
                     <button className="settings-btn secondary" onClick={onClose}>{t('settings.close')}</button>
                     <button

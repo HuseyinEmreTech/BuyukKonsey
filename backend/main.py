@@ -339,6 +339,8 @@ async def update_api_key(update: ApiKeyUpdate):
         load_dotenv(env_path, override=True)
         # Update current process
         os.environ["OPENROUTER_API_KEY"] = update.api_key
+        # Reload config so the in-memory API key is refreshed
+        config.reload_config()
         
         return {"status": "success", "message": "API key updated successfully"}
     except Exception as e:
@@ -384,10 +386,13 @@ async def list_available_models():
         print(f"Error fetching models: {e}")
         # Return common fallback models if API call fails
         return [
+            {"id": "google/gemini-2.0-flash-exp:free", "name": "Gemini 2.0 Flash", "is_free": True, "speed": "⚡ Hızlı"},
+            {"id": "meta-llama/llama-4-maverick:free", "name": "Llama 4 Maverick", "is_free": True, "speed": "⚡ Hızlı"},
+            {"id": "meta-llama/llama-3.3-70b-instruct:free", "name": "Llama 3.3 70B", "is_free": True, "speed": "⚡ Hızlı"},
+            {"id": "qwen/qwen3-235b-a22b:free", "name": "Qwen3 235B", "is_free": True, "speed": "⏱️ Normal"},
             {"id": "openai/gpt-4o", "name": "GPT-4o", "is_free": False, "speed": "⚡ Hızlı"},
-            {"id": "google/gemini-2.0-pro-exp-02-05:free", "name": "Gemini 2.0 Pro", "is_free": True, "speed": "🐢 Yavaş"},
-            {"id": "anthropic/claude-3.5-sonnet", "name": "Claude 3.5 Sonnet", "is_free": False, "speed": "⏱️ Normal"},
-            {"id": "deepseek/deepseek-chat", "name": "DeepSeek Chat", "is_free": False, "speed": "⏱️ Normal"}
+            {"id": "anthropic/claude-3.5-sonnet", "name": "Claude 3.5 Sonnet", "is_free": False, "speed": "⚡ Hızlı"},
+            {"id": "deepseek/deepseek-chat", "name": "DeepSeek Chat V3", "is_free": False, "speed": "⚡ Hızlı"},
         ]
 
 

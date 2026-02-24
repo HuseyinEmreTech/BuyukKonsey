@@ -35,15 +35,15 @@ CORS_ORIGINS = [
 DATA_DIR = "data/conversations"
 SETTINGS_FILE = "data/settings.json"
 
-# Default models
+# Default models (ücretsiz + hızlı — ilk çalıştırma için optimize)
 DEFAULT_COUNCIL_MODELS = [
-    "openai/gpt-4o",
-    "google/gemini-2.0-pro-exp-02-05:free",
-    "anthropic/claude-3.5-sonnet",
-    "x-ai/grok-2-1212",
+    "google/gemini-2.0-flash-exp:free",
+    "meta-llama/llama-4-maverick:free",
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "qwen/qwen3-235b-a22b:free",
 ]
 
-DEFAULT_CHAIRMAN_MODEL = "google/gemini-2.0-pro-exp-02-05:free"
+DEFAULT_CHAIRMAN_MODEL = "google/gemini-2.0-flash-exp:free"
 
 def get_settings():
     """Load settings from JSON file or return defaults."""
@@ -75,9 +75,12 @@ COUNCIL_MODELS = _settings["council_models"]
 CHAIRMAN_MODEL = _settings["chairman_model"]
 
 def reload_config():
-    """Reload configuration from file."""
-    global COUNCIL_MODELS, CHAIRMAN_MODEL
+    """Reload configuration from file and environment."""
+    global COUNCIL_MODELS, CHAIRMAN_MODEL, OPENROUTER_API_KEY
+    # Reload API key from environment
+    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+    # Reload model settings
     settings = get_settings()
     COUNCIL_MODELS = settings["council_models"]
     CHAIRMAN_MODEL = settings["chairman_model"]
-    logger.info("Config reloaded: models=%s, chairman=%s", COUNCIL_MODELS, CHAIRMAN_MODEL)
+    logger.info("Config reloaded: models=%s, chairman=%s, api_key=%s", COUNCIL_MODELS, CHAIRMAN_MODEL, 'set' if OPENROUTER_API_KEY else 'NOT SET')

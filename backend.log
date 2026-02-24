@@ -1,37 +1,37 @@
-INFO:     Started server process [17340]
+INFO:     Started server process [21224]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
-INFO:     127.0.0.1:41120 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41124 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36890 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37176 - "POST /api/config/apikey HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37180 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54836 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54836 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34512 - "OPTIONS /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34514 - "POST /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34514 - "GET /api/conversations/e2d9d3df-e53f-41af-a933-2eb3aad3b71f HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57634 - "OPTIONS /api/conversations/e2d9d3df-e53f-41af-a933-2eb3aad3b71f/message/stream HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57644 - "POST /api/conversations/e2d9d3df-e53f-41af-a933-2eb3aad3b71f/message/stream HTTP/1.1" 200 OK
-2026-02-24 16:12:11 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 16:12:11 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 16:12:15 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-INFO:     127.0.0.1:47452 - "GET /api/settings HTTP/1.1" 200 OK
-2026-02-24 16:12:24 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
-INFO:     127.0.0.1:47458 - "GET /api/models HTTP/1.1" 200 OK
-2026-02-24 16:12:27 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 16:12:32 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 16:12:35 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 16:12:42 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 16:12:53 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 16:13:14 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-INFO:     127.0.0.1:50966 - "GET / HTTP/1.1" 200 OK
-2026-02-24 16:13:26 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-INFO:     127.0.0.1:47802 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47802 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55592 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56580 - "OPTIONS /api/config/apikey HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56586 - "POST /api/config/apikey HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56598 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44330 - "POST /api/config/apikey HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49238 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49238 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49238 - "GET /api/settings HTTP/1.1" 200 OK
+2026-02-24 16:46:48 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:49242 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47672 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47672 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47672 - "GET /api/settings HTTP/1.1" 200 OK
+2026-02-24 16:48:16 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:47680 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33958 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33958 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50642 - "GET /api/settings HTTP/1.1" 200 OK
+2026-02-24 16:48:54 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:50646 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42172 - "GET /api/settings HTTP/1.1" 200 OK
+2026-02-24 16:50:51 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:42174 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56404 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56404 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56404 - "GET /api/conversations/370bd57c-9286-4849-9044-5e79d6a474e5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56404 - "OPTIONS /api/conversations/370bd57c-9286-4849-9044-5e79d6a474e5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56412 - "DELETE /api/conversations/370bd57c-9286-4849-9044-5e79d6a474e5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56412 - "OPTIONS /api/conversations/6c1e00e2-c26e-408d-9b88-4dbcacb1e87f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56404 - "DELETE /api/conversations/6c1e00e2-c26e-408d-9b88-4dbcacb1e87f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56404 - "OPTIONS /api/conversations/ed913902-48f3-4b8e-93c6-e7a6c65181a4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56412 - "DELETE /api/conversations/ed913902-48f3-4b8e-93c6-e7a6c65181a4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56412 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56412 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56412 - "GET /api/conversations/4d79a3a2-f5fe-418f-b060-cb9c3f379610 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56412 - "OPTIONS /api/conversations/4d79a3a2-f5fe-418f-b060-cb9c3f379610 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56404 - "DELETE /api/conversations/4d79a3a2-f5fe-418f-b060-cb9c3f379610 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56404 - "GET /api/conversations/6d9f0cfc-44a1-489f-aa3b-fe469adbbea6 HTTP/1.1" 200 OK
