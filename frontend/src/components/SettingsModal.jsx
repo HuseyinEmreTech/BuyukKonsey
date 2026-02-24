@@ -103,7 +103,7 @@ export default function SettingsModal({ isOpen, onClose }) {
         const premiumModels = [
             'openai/gpt-4o',                       // Hızlı, genel zeka lideri
             'anthropic/claude-3.5-sonnet',         // Hızlı, mükemmel sentez
-            'google/gemini-2.0-flash-exp',         // Ultra hızlı, kaliteli
+            'google/gemini-2.5-pro',               // Güçlü Google amiral gemisi
             'deepseek/deepseek-chat',              // Hızlı V3, güçlü kodlama
         ];
 
@@ -124,19 +124,20 @@ export default function SettingsModal({ isOpen, onClose }) {
     };
 
     const handleAutoSelectFree = () => {
-        // Ücretsiz: Hız + Kalite dengesi (sıfır maliyet, hızlı modeller)
+        // Ücretsiz: Hız + Kalite dengesi (sıfır maliyet, mevcut 2026 free modelleri)
         const freeModels = [
-            'google/gemini-2.0-flash-exp:free',            // Ultra hızlı, ücretsiz
-            'meta-llama/llama-4-maverick:free',             // Yeni nesil Llama, hızlı
+            'google/gemma-3-27b-it:free',                  // Google'ın yeni açık modeli
             'meta-llama/llama-3.3-70b-instruct:free',      // Kanıtlanmış, tutarlı
-            'qwen/qwen3-235b-a22b:free',                   // Çok dilli, güçlü
+            'qwen/qwen3-next-80b-a3b-instruct:free',       // Yeni Qwen büyük model
+            'deepseek/deepseek-r1-0528:free',              // DeepSeek Derin Mantık
         ];
 
         // Fallback listesi
         const fallbackFreeModels = [
-            'google/gemini-2.0-pro-exp-02-05:free',
-            'deepseek/deepseek-chat:free',
+            'nousresearch/hermes-3-llama-3.1-405b:free',
+            'google/gemma-3-12b-it:free',
             'qwen/qwen3-coder:free',
+            'meta-llama/llama-3.2-3b-instruct:free',
         ];
 
         let availableFree = availableModels

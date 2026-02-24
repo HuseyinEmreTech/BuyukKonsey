@@ -37,13 +37,13 @@ SETTINGS_FILE = "data/settings.json"
 
 # Default models (ücretsiz + hızlı — ilk çalıştırma için optimize)
 DEFAULT_COUNCIL_MODELS = [
-    "google/gemini-2.0-flash-exp:free",
-    "meta-llama/llama-4-maverick:free",
+    "google/gemma-3-27b-it:free",
     "meta-llama/llama-3.3-70b-instruct:free",
-    "qwen/qwen3-235b-a22b:free",
+    "qwen/qwen3-next-80b-a3b-instruct:free",
+    "deepseek/deepseek-r1-0528:free",
 ]
 
-DEFAULT_CHAIRMAN_MODEL = "google/gemini-2.0-flash-exp:free"
+DEFAULT_CHAIRMAN_MODEL = "google/gemma-3-27b-it:free"
 
 def get_settings():
     """Load settings from JSON file or return defaults."""

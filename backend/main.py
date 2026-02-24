@@ -386,13 +386,14 @@ async def list_available_models():
         print(f"Error fetching models: {e}")
         # Return common fallback models if API call fails
         return [
-            {"id": "google/gemini-2.0-flash-exp:free", "name": "Gemini 2.0 Flash", "is_free": True, "speed": "⚡ Hızlı"},
-            {"id": "meta-llama/llama-4-maverick:free", "name": "Llama 4 Maverick", "is_free": True, "speed": "⚡ Hızlı"},
+            {"id": "google/gemma-3-27b-it:free", "name": "Gemma 3 27B", "is_free": True, "speed": "⚡ Hızlı"},
             {"id": "meta-llama/llama-3.3-70b-instruct:free", "name": "Llama 3.3 70B", "is_free": True, "speed": "⚡ Hızlı"},
-            {"id": "qwen/qwen3-235b-a22b:free", "name": "Qwen3 235B", "is_free": True, "speed": "⏱️ Normal"},
+            {"id": "qwen/qwen3-next-80b-a3b-instruct:free", "name": "Qwen3 Next 80B", "is_free": True, "speed": "⚡ Hızlı"},
+            {"id": "deepseek/deepseek-r1-0528:free", "name": "DeepSeek R1", "is_free": True, "speed": "⏱️ Normal"},
             {"id": "openai/gpt-4o", "name": "GPT-4o", "is_free": False, "speed": "⚡ Hızlı"},
             {"id": "anthropic/claude-3.5-sonnet", "name": "Claude 3.5 Sonnet", "is_free": False, "speed": "⚡ Hızlı"},
             {"id": "deepseek/deepseek-chat", "name": "DeepSeek Chat V3", "is_free": False, "speed": "⚡ Hızlı"},
+            {"id": "google/gemini-2.5-pro", "name": "Gemini 2.5 Pro", "is_free": False, "speed": "⏱️ Normal"},
         ]
 
 

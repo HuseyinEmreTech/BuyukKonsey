@@ -35,3 +35,18 @@ INFO:     127.0.0.1:56412 - "GET /api/conversations/4d79a3a2-f5fe-418f-b060-cb9c
 INFO:     127.0.0.1:56412 - "OPTIONS /api/conversations/4d79a3a2-f5fe-418f-b060-cb9c3f379610 HTTP/1.1" 200 OK
 INFO:     127.0.0.1:56404 - "DELETE /api/conversations/4d79a3a2-f5fe-418f-b060-cb9c3f379610 HTTP/1.1" 200 OK
 INFO:     127.0.0.1:56404 - "GET /api/conversations/6d9f0cfc-44a1-489f-aa3b-fe469adbbea6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53672 - "GET /api/settings HTTP/1.1" 200 OK
+2026-02-24 17:00:00 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:53678 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53678 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53678 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53678 - "GET /api/settings HTTP/1.1" 200 OK
+2026-02-24 17:00:05 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:60916 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47870 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47870 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47870 - "GET /api/conversations/6d9f0cfc-44a1-489f-aa3b-fe469adbbea6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43046 - "GET /api/settings HTTP/1.1" 200 OK
+2026-02-24 17:06:24 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:43048 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42120 - "GET / HTTP/1.1" 200 OK
