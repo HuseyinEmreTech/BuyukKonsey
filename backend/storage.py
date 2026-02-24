@@ -3,7 +3,15 @@
 import json
 import os
 import re
-import fcntl
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
+
+try:
+    import msvcrt
+except ImportError:
+    msvcrt = None
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
@@ -50,21 +58,43 @@ def _read_json_locked(path: str) -> Optional[Dict[str, Any]]:
     if not os.path.exists(path):
         return None
     with open(path, 'r') as f:
-        fcntl.flock(f.fileno(), fcntl.LOCK_SH)
+        if fcntl:
+            fcntl.flock(f.fileno(), fcntl.LOCK_SH)
+        elif msvcrt:
+            # msvcrt locking is different, but for shared read it's not straightforward
+            # simple read is often fine in Windows dev environments
+            pass
         try:
             return json.load(f)
         finally:
-            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+            if fcntl:
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
 
 
 def _write_json_locked(path: str, data: Dict[str, Any]):
     """Write a JSON file with an exclusive (write) lock."""
     with open(path, 'w') as f:
-        fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+        if fcntl:
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+        elif msvcrt:
+            # Simple exclusive lock on Windows
+            try:
+                f.seek(0)
+                msvcrt.locking(f.fileno(), msvcrt.LK_LOCK, 1024*1024) # Lock first 1MB
+            except (IOError, OSError):
+                pass
         try:
             json.dump(data, f, indent=2)
+            f.flush() # Ensure it is written before unlocking
         finally:
-            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+            if fcntl:
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+            elif msvcrt:
+                try:
+                    f.seek(0)
+                    msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1024*1024)
+                except (IOError, OSError):
+                    pass
 
 
 def create_conversation(conversation_id: str) -> Dict[str, Any]:
