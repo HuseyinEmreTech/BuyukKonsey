@@ -27,7 +27,7 @@ OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 CORS_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
-        "CORS_ORIGINS", "http://localhost:5173,http://localhost:3000"
+        "CORS_ORIGINS", "http://localhost:5173,http://localhost:5174,http://localhost:3000"
     ).split(",")
 ]
 

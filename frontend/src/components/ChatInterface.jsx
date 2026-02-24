@@ -24,11 +24,16 @@ export default function ChatInterface({
       interval = setInterval(() => {
         setMsgIndex((prev) => (prev + 1) % thinkingMessages.length);
       }, 4000);
-    } else {
-      setMsgIndex(0);
     }
     return () => clearInterval(interval);
   }, [isLoading, thinkingMessages.length]);
+
+  // Reset msgIndex when loading starts/stops
+  useEffect(() => {
+    if (!isLoading) {
+      setMsgIndex(0);
+    }
+  }, [isLoading]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -168,9 +173,9 @@ export default function ChatInterface({
                       <span style={{ fontSize: '18px' }}>⚠️</span>
                       <div>
                         <strong style={{ display: 'block', marginBottom: '4px' }}>
-                          {msg.error.type === 'timeout' ? 'Zaman Aşımı' :
-                            msg.error.type === 'context_limit' ? 'İçerik Sınırı Aşıldı' :
-                              'Hata'}
+                          {msg.error.type === 'timeout' ? t('chat.error.timeout') :
+                            msg.error.type === 'context_limit' ? t('chat.error.context') :
+                              t('chat.error.general')}
                         </strong>
                         <span style={{ opacity: 0.8, fontSize: '13px' }}>{msg.error.message}</span>
                       </div>

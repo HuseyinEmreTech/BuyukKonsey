@@ -25,18 +25,19 @@
 
 .tab {
   padding: 10px 20px;
-  background: var(--bg-glass);
-  border: 1px solid var(--border-glass);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
   border-radius: 12px;
   color: var(--text-secondary);
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tab:hover {
-  background: var(--bg-glass-active);
+  background: var(--tab-hover-bg);
   color: var(--text-primary);
+  border-color: var(--accent-primary);
   transform: translateY(-1px);
 }
 
@@ -45,7 +46,7 @@
   color: white;
   border-color: transparent;
   font-weight: 600;
-  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
 }
 
 .tab-content {

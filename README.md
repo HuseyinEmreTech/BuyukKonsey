@@ -115,6 +115,12 @@ Son sürümle birlikte konsey deneyimi çok daha profesyonel ve kullanışlı bi
 
 ---
 
+## 💎 v1.3 (Resmi Logolar ve Gelişmiş Konfigürasyon)
+- **Resmi Marka Logoları**: Modeller artık emoji yerine Google, Anthropic, OpenAI gibi sağlayıcıların resmi SVG logolarıyla görüntülenir.
+- **API Anahtarı Yönetimi**: Ayarlar ekranındaki kalabalığı azaltmak için API anahtarı yapılandırması **Sistem Durumu** paneline taşındı.
+- **Gelişmiş Tanılama Paneli**: "API ÇALIŞIYOR" göstergesi artık daha belirgin bir yeşil renkte ve hata kodları (401, 402, 429) için detaylı yardım kartları eklendi.
+- **Arayüz ve Mantık Denetimi**: Tüm uygulama baştan aşağı taranarak görsel kaymalar ve mantıksal tutarsızlıklar giderildi, "Premium" hissiyatı artırıldı.
+
 ---
 
 Developed with ❤️ by [HuseyinEmreTech](https://github.com/HuseyinEmreTech)

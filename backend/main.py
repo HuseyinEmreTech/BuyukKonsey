@@ -8,6 +8,9 @@ from typing import List, Dict, Any
 import uuid
 import json
 import asyncio
+import os
+import logging
+from dotenv import set_key, load_dotenv
 
 from . import storage
 from . import config
@@ -16,6 +19,9 @@ import httpx
 from typing import Optional
 
 app = FastAPI(title="LLM Council API")
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 # Manage background tasks and event broadcasting
 ACTIVE_QUEUES: Dict[str, List[asyncio.Queue]] = {}
@@ -35,6 +41,10 @@ class Settings(BaseModel):
     """Council and chairman model settings."""
     council_models: List[str]
     chairman_model: str
+
+
+class ApiKeyUpdate(BaseModel):
+    api_key: str
 
 
 class CreateConversationRequest(BaseModel):
@@ -310,6 +320,30 @@ async def update_settings(settings: Settings):
     config.save_settings(settings.council_models, settings.chairman_model)
     config.reload_config()
     return {"status": "success"}
+
+
+@app.post("/api/config/apikey")
+async def update_api_key(update: ApiKeyUpdate):
+    """Update OpenRouter API key in .env file."""
+    try:
+        env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+        # Ensure file exists
+        if not os.path.exists(env_path):
+            with open(env_path, "w") as f:
+                f.write("")
+        
+        # Update key
+        set_key(env_path, "OPENROUTER_API_KEY", update.api_key)
+        
+        # Reload environment
+        load_dotenv(env_path, override=True)
+        # Update current process
+        os.environ["OPENROUTER_API_KEY"] = update.api_key
+        
+        return {"status": "success", "message": "API key updated successfully"}
+    except Exception as e:
+        logger.error(f"Error updating API key: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 def get_model_speed(model_id: str, name: str) -> str:

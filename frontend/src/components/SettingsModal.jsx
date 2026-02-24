@@ -1,21 +1,23 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../api';
+import CouncilTable from './CouncilTable';
+import BrandLogo from './BrandLogo';
 import './SettingsModal.css';
 
 // Brand info mapping based on model ID prefix
 const getBrandInfo = (modelId) => {
     const id = modelId.toLowerCase();
-    if (id.includes('openai/')) return { icon: '🟢', brand: 'OpenAI', bg: 'rgba(16, 163, 127, 0.15)', color: '#10a37f', desc: 'Güçlü Analiz & Mükemmel Kodlama' };
-    if (id.includes('anthropic/')) return { icon: '🟤', brand: 'Anthropic', bg: 'rgba(217, 119, 87, 0.15)', color: '#d97757', desc: 'İnsan Benzeri Kalite & Uzun Bağlam' };
-    if (id.includes('google/')) return { icon: '🔵', brand: 'Google', bg: 'rgba(66, 133, 244, 0.15)', color: '#8ab4f8', desc: 'Yüksek Hız & Anında Cevap' };
-    if (id.includes('meta-llama/')) return { icon: '🥽', brand: 'Meta', bg: 'rgba(6, 104, 225, 0.15)', color: '#6fb5ff', desc: 'Açık Kaynak Lideri & Tutarlı' };
-    if (id.includes('x-ai/')) return { icon: '✖️', brand: 'xAI', bg: 'rgba(255, 255, 255, 0.1)', color: '#ffffff', desc: 'Gerçek Zamanlı Veri & Zeka' };
-    if (id.includes('deepseek/')) return { icon: '🐋', brand: 'DeepSeek', bg: 'rgba(77, 105, 236, 0.15)', color: '#4d69ec', desc: 'Matematik & Gelişmiş Kodlama' };
-    if (id.includes('mistralai/')) return { icon: '🌪️', brand: 'Mistral', bg: 'rgba(251, 169, 25, 0.15)', color: '#fba919', desc: 'Avrupa Çıkışlı & Etkili' };
-    if (id.includes('cohere/')) return { icon: '🪨', brand: 'Cohere', bg: 'rgba(57, 89, 77, 0.15)', color: '#88a399', desc: 'Kurumsal Seviye Mantık' };
-    if (id.includes('nousresearch/')) return { icon: '🧠', brand: 'Nous', bg: 'rgba(255, 100, 100, 0.15)', color: '#ff6464', desc: 'Topluluk Odaklı & Özgür' };
-    return { icon: '🤖', brand: 'Diğer', bg: 'var(--bg-secondary)', color: 'var(--text-secondary)', desc: 'Ekstra Topluluk Modeli' };
+    if (id.includes('openai/')) return { icon: <BrandLogo brand="OpenAI" />, brand: 'OpenAI', bg: 'rgba(16, 163, 127, 0.15)', color: '#10a37f', desc: 'Güçlü Analiz & Mükemmel Kodlama' };
+    if (id.includes('anthropic/')) return { icon: <BrandLogo brand="Anthropic" />, brand: 'Anthropic', bg: 'rgba(217, 119, 87, 0.15)', color: '#d97757', desc: 'İnsan Benzeri Kalite & Uzun Bağlam' };
+    if (id.includes('google/')) return { icon: <BrandLogo brand="Google" />, brand: 'Google', bg: 'rgba(66, 133, 244, 0.15)', color: '#8ab4f8', desc: 'Yüksek Hız & Anında Cevap' };
+    if (id.includes('meta-llama/')) return { icon: <BrandLogo brand="Meta" />, brand: 'Meta', bg: 'rgba(6, 104, 225, 0.15)', color: '#6fb5ff', desc: 'Açık Kaynak Lideri & Tutarlı' };
+    if (id.includes('x-ai/')) return { icon: <BrandLogo brand="xAI" />, brand: 'xAI', bg: 'rgba(255, 255, 255, 0.1)', color: '#ffffff', desc: 'Gerçek Zamanlı Veri & Zeka' };
+    if (id.includes('deepseek/')) return { icon: <BrandLogo brand="DeepSeek" />, brand: 'DeepSeek', bg: 'rgba(77, 105, 236, 0.15)', color: '#4d69ec', desc: 'Matematik & Gelişmiş Kodlama' };
+    if (id.includes('mistralai/')) return { icon: <BrandLogo brand="Mistral" />, brand: 'Mistral', bg: 'rgba(251, 169, 25, 0.15)', color: '#fba919', desc: 'Avrupa Çıkışlı & Etkili' };
+    if (id.includes('cohere/')) return { icon: <BrandLogo brand="Default" />, brand: 'Cohere', bg: 'rgba(57, 89, 77, 0.15)', color: '#88a399', desc: 'Kurumsal Seviye Mantık' };
+    if (id.includes('nousresearch/')) return { icon: <BrandLogo brand="Default" />, brand: 'Nous', bg: 'rgba(255, 100, 100, 0.15)', color: '#ff6464', desc: 'Topluluk Odaklı & Özgür' };
+    return { icon: <BrandLogo brand="Default" />, brand: 'Diğer', bg: 'var(--bg-secondary)', color: 'var(--text-secondary)', desc: 'Ekstra Topluluk Modeli' };
 };
 
 export default function SettingsModal({ isOpen, onClose }) {
@@ -112,9 +114,10 @@ export default function SettingsModal({ isOpen, onClose }) {
         if (availablePremium.length > 0) {
             setCouncilModels(availablePremium);
             // Başkanı her zaman genel geçer mantık harikası Sonnet 3.5 yap
+            // Başkanı her zaman genel geçer mantık harikası Sonnet 3.5 yap
             if (availablePremium.includes('anthropic/claude-3.5-sonnet')) {
                 setChairmanModel('anthropic/claude-3.5-sonnet');
-            } else {
+            } else if (availablePremium.length > 0) {
                 setChairmanModel(availablePremium[0]);
             }
         } else {
@@ -170,119 +173,98 @@ export default function SettingsModal({ isOpen, onClose }) {
     return (
         <div className="modal-overlay">
             <div className="modal-content settings-modal glass-effect">
-                <button className="modal-close" onClick={onClose}>&times;</button>
-
-                <h2 className="settings-title">✨ Modelleri Yapılandır</h2>
+                <h2 className="settings-title">✨ {t('settings.configureModels')}</h2>
 
                 {isLoading ? (
                     <div className="settings-loading">
                         <div className="spinner"></div>
-                        <p style={{ marginTop: '12px' }}>Modeller yükleniyor...</p>
+                        <p style={{ marginTop: '12px' }}>{t('settings.loading')}</p>
                     </div>
                 ) : (
                     <div className="settings-body">
 
-                        {/* 1. SEÇİLİ ÖZET */}
+                        {/* 1. SEÇİLİ ÖZET (MASA GÖRÜNÜMÜ) */}
                         <div className="selected-summary-panel">
-
-                            {/* Konsey Üyeleri */}
                             <div className="summary-section">
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                                    <label style={{ marginBottom: 0 }}>⚖️ Seçili Konsey Üyeleri ({councilModels.length})</label>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                    <h3 style={{ margin: 0 }}>{t('settings.councilTable')}</h3>
                                     <button
                                         onClick={handleAutoSelectPremium}
                                         className="magic-btn"
-                                        title="Bakiyeniz varsa, OpenAI, Anthropic ve DeepSeek'in en iyilerinden şampiyonlar ligi kurar."
+                                        title={t('settings.premiumKadroTitle')}
                                     >
-                                        ✨ Premium Kadro Kur
+                                        {t('settings.premiumKadro')}
                                     </button>
                                 </div>
-                                <div className="chips-container">
-                                    {councilModels.length === 0 && <span className="empty-chip">Henüz konsey üyesi seçilmedi</span>}
-                                    {councilModels.map(modelId => (
-                                        <div key={`c-${modelId}`} className="model-chip" title={modelId}>
-                                            <span className="chip-brand">{getBrandInfo(modelId).icon}</span>
-                                            <span className="chip-text">{getModelName(modelId)}</span>
-                                            <button className="chip-remove" onClick={() => removeCouncilModel(modelId)}>&times;</button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
 
-                            {/* Başkan */}
-                            <div className="summary-section">
-                                <label>👑 Konsey Başkanı</label>
-                                <div className="chips-container">
-                                    {chairmanModel ? (
-                                        <div className="model-chip chairman-chip" title={chairmanModel}>
-                                            <span className="chip-brand">{getBrandInfo(chairmanModel).icon}</span>
-                                            <span className="chip-text">{getModelName(chairmanModel)}</span>
-                                            <button className="chip-remove" onClick={() => setChairmanModel('')}>&times;</button>
-                                        </div>
-                                    ) : (
-                                        <span className="empty-chip warning">⚠️ Başkan seçilmedi (İlk konsey üyesi atanır)</span>
-                                    )}
-                                </div>
+                                <CouncilTable
+                                    councilModels={councilModels}
+                                    chairmanModel={chairmanModel}
+                                    getBrandInfo={getBrandInfo}
+                                    getModelName={getModelName}
+                                    onRemoveModel={removeCouncilModel}
+                                    onSetChairman={setChairmanModel}
+                                />
                             </div>
                         </div>
 
                         {/* 3. MANUEL MODEL EKLEME */}
                         <form className="custom-model-adder" onSubmit={handleAddCustomModel} style={{ marginTop: '0', marginBottom: '30px' }}>
-                            <label>Katalogda Olmayan Özel Model Ekle:</label>                    <div className="custom-input-group">
+                            <label>{t('settings.customModelLabel')}</label>                    <div className="custom-input-group">
                                 <input
                                     type="text"
-                                    placeholder="örn: anthropic/claude-3-opus:beta"
+                                    placeholder={t('settings.customModelPlaceholder')}
                                     value={customModel}
                                     onChange={e => setCustomModel(e.target.value)}
                                 />
-                                <button type="submit" disabled={!customModel.trim()}>Ekle</button>
+                                <button type="submit" disabled={!customModel.trim()}>{t('settings.add')}</button>
                             </div>
                         </form>
 
                         {/* 2. MODEL ARAMA VE SEÇME IZGARASI */}
                         <div className="model-picker-section">
                             <div className="picker-header">
-                                <h3>Katalogdan Model Seçin</h3>
+                                <h3>{t('settings.selectFromCatalog')}</h3>
                                 <input
                                     type="text"
                                     className="model-search-input"
-                                    placeholder="🔍 Sistemde Ara..."
+                                    placeholder={t('settings.searchSystem')}
                                     value={searchQuery}
-                                    onChange={e => setSearchQuery(e.target.value)}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
                                 />
                             </div>
 
                             {/* MULTI-DIMENSIONAL FILTERS */}
                             <div className="filters-container">
                                 <div className="filter-group">
-                                    <label>Fiyatlandırma</label>
+                                    <label>{t('settings.price')}</label>
                                     <select
                                         className="filter-select"
                                         value={priceFilter}
                                         onChange={(e) => setPriceFilter(e.target.value)}
                                     >
-                                        <option value="All">Tüm Fiyatlar</option>
-                                        <option value="Ücretsiz">Sadece Ücretsiz</option>
-                                        <option value="Ücretli">Sadece Ücretli</option>
+                                        <option value="All">{t('settings.allPrices')}</option>
+                                        <option value="Ücretsiz">{t('settings.onlyFree')}</option>
+                                        <option value="Ücretli">{t('settings.onlyPaid')}</option>
                                     </select>
                                 </div>
 
                                 <div className="filter-group">
-                                    <label>İşlem Hızı</label>
+                                    <label>{t('settings.speed')}</label>
                                     <select
                                         className="filter-select"
                                         value={speedFilter}
                                         onChange={(e) => setSpeedFilter(e.target.value)}
                                     >
-                                        <option value="All">Tüm Hızlar</option>
-                                        <option value="⚡ Hızlı">⚡ Hızlı Seç</option>
-                                        <option value="⏱️ Normal">⏱️ Normal Seç</option>
-                                        <option value="🐢 Yavaş">🐢 Yavaş Seç</option>
+                                        <option value="All">{t('settings.allSpeeds')}</option>
+                                        <option value="⚡ Hızlı">{t('settings.fast')}</option>
+                                        <option value="⏱️ Normal">{t('settings.normal')}</option>
+                                        <option value="🐢 Yavaş">{t('settings.slow')}</option>
                                     </select>
                                 </div>
 
                                 <div className="filter-group">
-                                    <label>Sağlayıcı (Marka)</label>
+                                    <label>{t('settings.brand')}</label>
                                     <select
                                         className="filter-select"
                                         value={brandFilter}
@@ -290,7 +272,7 @@ export default function SettingsModal({ isOpen, onClose }) {
                                     >
                                         {BRAND_OPTIONS.map(brand => (
                                             <option key={brand} value={brand}>
-                                                {brand === 'All' ? 'Tüm Markalar' : brand}
+                                                {brand === 'All' ? t('settings.allBrands') : brand}
                                             </option>
                                         ))}
                                     </select>
@@ -300,10 +282,10 @@ export default function SettingsModal({ isOpen, onClose }) {
                             <div className="model-grid">
                                 {availableModels.length === 0 ? (
                                     <div className="models-error">
-                                        Modeller API'den çekilemedi. Özel ekleme kutusunu kullanabilirsiniz.
+                                        {t('settings.apiError')}
                                     </div>
                                 ) : filteredModels.length === 0 ? (
-                                    <div className="models-error">Aradığınız model bulunamadı.</div>
+                                    <div className="models-error">{t('settings.modelNotFound')}</div>
                                 ) : (
                                     filteredModels.map(model => {
                                         const isCouncil = councilModels.includes(model.id);
@@ -358,7 +340,7 @@ export default function SettingsModal({ isOpen, onClose }) {
                                                         className={`card-btn council-btn ${isCouncil ? 'active' : ''}`}
                                                         onClick={() => isCouncil ? removeCouncilModel(model.id) : addCouncilModel(model.id)}
                                                     >
-                                                        {isCouncil ? '✓ Konseyde' : '+ Konseye Ekle'}
+                                                        {isCouncil ? '✅ Masada' : '🪑 Masaya Oturt'}
                                                     </button>
                                                     <button
                                                         className={`card-btn chairman-btn ${isChairman ? 'active' : ''}`}
@@ -381,14 +363,14 @@ export default function SettingsModal({ isOpen, onClose }) {
                     <div className="dev-credit" style={{ fontSize: '12px', color: 'var(--text-muted)', flex: 1 }}>
                         Built with 🔥 by <a href="https://github.com/HuseyinEmreTech" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}><strong>Hüseyin Emre</strong></a>
                     </div>
-                    <button className="settings-btn secondary" onClick={onClose}>{t('status.close')}</button>
+                    <button className="settings-btn secondary" onClick={onClose}>{t('settings.close')}</button>
                     <button
                         className="settings-btn primary"
                         onClick={handleSave}
                         disabled={isSaving === true || councilModels.filter(m => m.trim() !== '').length === 0}
                         style={isSaving === 'success' ? { background: '#4ade80', color: '#000' } : {}}
                     >
-                        {isSaving === true ? 'Kaydediliyor...' : isSaving === 'success' ? 'Kaydedildi ✓' : t('settings.save')}
+                        {isSaving === true ? t('settings.saving') : isSaving === 'success' ? t('settings.saved') : t('settings.save')}
                     </button>
                 </div>
             </div>

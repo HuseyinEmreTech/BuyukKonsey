@@ -1,79 +1,37 @@
-INFO:     Started server process [12107]
+INFO:     Started server process [17340]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
-INFO:     127.0.0.1:42114 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42114 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42118 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42118 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42118 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42118 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42126 - "GET /api/settings HTTP/1.1" 200 OK
-2026-02-24 00:47:51 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
-INFO:     127.0.0.1:42136 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48840 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48840 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59002 - "GET /api/conversations/80a83aec-1dc5-4cdd-b851-63e359f5f99b HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59002 - "GET /api/conversations/3c0005db-df57-4e2d-9507-375ea022da58 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59002 - "GET /api/conversations/80a83aec-1dc5-4cdd-b851-63e359f5f99b HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59002 - "GET /api/conversations/3c0005db-df57-4e2d-9507-375ea022da58 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36818 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36818 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36830 - "GET /api/settings HTTP/1.1" 200 OK
-2026-02-24 00:55:34 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
-INFO:     127.0.0.1:36840 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49386 - "OPTIONS /api/settings HTTP/1.1" 200 OK
-2026-02-24 00:56:11 [INFO] llm-council: Settings saved: 7 council models, chairman=anthropic/claude-sonnet-4.6
-2026-02-24 00:56:11 [INFO] llm-council: Config reloaded: models=['openai/gpt-5.2-chat', 'anthropic/claude-sonnet-4.6', 'google/gemini-3.1-pro-preview', 'meta-llama/llama-guard-4-12b', 'deepseek/deepseek-v3.2-speciale', 'x-ai/grok-4-fast', 'prime-intellect/intellect-3'], chairman=anthropic/claude-sonnet-4.6
-INFO:     127.0.0.1:49390 - "POST /api/settings HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46512 - "GET /api/settings HTTP/1.1" 200 OK
-2026-02-24 00:56:22 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
-INFO:     127.0.0.1:46514 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44410 - "GET /api/settings HTTP/1.1" 200 OK
-2026-02-24 00:56:39 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
-INFO:     127.0.0.1:44426 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41472 - "GET /api/settings HTTP/1.1" 200 OK
-2026-02-24 00:56:51 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
-INFO:     127.0.0.1:41480 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49682 - "GET /api/conversations/3c0005db-df57-4e2d-9507-375ea022da58 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44258 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44258 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44258 - "GET /api/conversations/d84369a1-2b1c-45e1-b160-b162fd4966fc HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44258 - "GET /api/conversations/80a83aec-1dc5-4cdd-b851-63e359f5f99b HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59126 - "GET /api/settings HTTP/1.1" 200 OK
-2026-02-24 01:01:05 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
-INFO:     127.0.0.1:59130 - "GET /api/models HTTP/1.1" 200 OK
-2026-02-24 01:01:17 [INFO] llm-council: Settings saved: 7 council models, chairman=anthropic/claude-sonnet-4.6
-2026-02-24 01:01:17 [INFO] llm-council: Config reloaded: models=['openai/gpt-5.2-chat', 'anthropic/claude-sonnet-4.6', 'google/gemini-3.1-pro-preview', 'meta-llama/llama-guard-4-12b', 'deepseek/deepseek-v3.2-speciale', 'x-ai/grok-4-fast', 'prime-intellect/intellect-3'], chairman=anthropic/claude-sonnet-4.6
-INFO:     127.0.0.1:38602 - "POST /api/settings HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55414 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55414 - "GET /api/settings HTTP/1.1" 200 OK
-2026-02-24 01:01:47 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
-INFO:     127.0.0.1:55422 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50294 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50294 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50294 - "GET /api/settings HTTP/1.1" 200 OK
-2026-02-24 01:03:27 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
-INFO:     127.0.0.1:50302 - "GET /api/models HTTP/1.1" 200 OK
-2026-02-24 01:04:28 [INFO] llm-council: Settings saved: 4 council models, chairman=anthropic/claude-sonnet-4.6
-2026-02-24 01:04:28 [INFO] llm-council: Config reloaded: models=['openai/gpt-5.1-codex-mini', 'anthropic/claude-haiku-4.5', 'google/gemini-3.1-pro-preview', 'x-ai/grok-4.1-fast'], chairman=anthropic/claude-sonnet-4.6
-INFO:     127.0.0.1:60660 - "POST /api/settings HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60660 - "GET /api/conversations/3c0005db-df57-4e2d-9507-375ea022da58 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60660 - "GET /api/conversations/80a83aec-1dc5-4cdd-b851-63e359f5f99b HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60660 - "OPTIONS /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59976 - "POST /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59976 - "GET /api/conversations/6d9f0cfc-44a1-489f-aa3b-fe469adbbea6 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59976 - "OPTIONS /api/conversations/6d9f0cfc-44a1-489f-aa3b-fe469adbbea6/message/stream HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60660 - "POST /api/conversations/6d9f0cfc-44a1-489f-aa3b-fe469adbbea6/message/stream HTTP/1.1" 200 OK
-2026-02-24 01:04:37 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 01:04:38 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 01:04:49 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 01:05:12 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 01:05:44 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 01:06:15 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 01:06:24 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 01:06:53 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 01:08:26 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-24 01:08:39 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
-INFO:     127.0.0.1:60660 - "GET /api/conversations HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60660 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41120 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41124 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36890 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37176 - "POST /api/config/apikey HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37180 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54836 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54836 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34512 - "OPTIONS /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34514 - "POST /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34514 - "GET /api/conversations/e2d9d3df-e53f-41af-a933-2eb3aad3b71f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57634 - "OPTIONS /api/conversations/e2d9d3df-e53f-41af-a933-2eb3aad3b71f/message/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57644 - "POST /api/conversations/e2d9d3df-e53f-41af-a933-2eb3aad3b71f/message/stream HTTP/1.1" 200 OK
+2026-02-24 16:12:11 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-24 16:12:11 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-24 16:12:15 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:47452 - "GET /api/settings HTTP/1.1" 200 OK
+2026-02-24 16:12:24 [INFO] httpx: HTTP Request: GET https://openrouter.ai/api/v1/models "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:47458 - "GET /api/models HTTP/1.1" 200 OK
+2026-02-24 16:12:27 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-24 16:12:32 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-24 16:12:35 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-24 16:12:42 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-24 16:12:53 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-24 16:13:14 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:50966 - "GET / HTTP/1.1" 200 OK
+2026-02-24 16:13:26 [INFO] httpx: HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:47802 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47802 - "GET /api/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55592 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56580 - "OPTIONS /api/config/apikey HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56586 - "POST /api/config/apikey HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56598 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44330 - "POST /api/config/apikey HTTP/1.1" 200 OK

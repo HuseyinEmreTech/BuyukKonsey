@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { api } from '../api';
 import './SystemStatus.css';
 
 export default function SystemStatus({ isOpen, onClose }) {
     const { t } = useLanguage();
     const [apiStatus, setApiStatus] = useState('offline');
     const [logs, setLogs] = useState([]);
+    const [apiKey, setApiKey] = useState('');
+    const [isSavingApiKey, setIsSavingApiKey] = useState(false);
 
     const checkStatus = async () => {
         // We set it to checking only when manually refreshing or via effect
         setApiStatus('checking');
         try {
-            const response = await fetch('http://localhost:8001/');
+            const response = await fetch('http://127.0.0.1:8001/');
             if (response.ok) {
                 setApiStatus('online');
             } else {
@@ -29,6 +32,26 @@ export default function SystemStatus({ isOpen, onClose }) {
             { id: 2, type: 'GET /api/models', time: new Date().toLocaleTimeString(), status: 200, data: '[ { "id": "google/gemini-2.0-flash-exp:free", ... } ]' },
             { id: 3, type: 'POST /api/message', time: new Date().toLocaleTimeString(), status: 402, data: '{ "error": "Insufficient Balance" }' }
         ]);
+    };
+
+    const handleSaveApiKey = async (e) => {
+        e.preventDefault();
+        if (!apiKey.trim()) return;
+
+        setIsSavingApiKey(true);
+        try {
+            await api.updateApiKey(apiKey.trim());
+            setIsSavingApiKey('success');
+            setTimeout(() => {
+                setIsSavingApiKey(false);
+                setApiKey('');
+                checkStatus(); // Refresh status after update
+            }, 1500);
+        } catch (error) {
+            console.error('Error saving API Key:', error);
+            alert(error.message || t('settings.error'));
+            setIsSavingApiKey(false);
+        }
     };
 
     useEffect(() => {
@@ -68,6 +91,36 @@ export default function SystemStatus({ isOpen, onClose }) {
                         </div>
                     </div>
 
+                    {/* API Key Configuration - Re-styled for System Status */}
+                    <div className="api-info-card" style={{ marginTop: '20px', border: '1px dashed var(--border-glass)' }}>
+                        <h3 style={{ marginTop: 0, fontSize: '16px', marginBottom: '10px' }}>{t('settings.apiKeyTitle')}</h3>
+                        <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '12px', fontStyle: 'italic' }}>
+                            {t('settings.apiKeyDesc')}
+                        </p>
+                        <form className="custom-input-group" onSubmit={handleSaveApiKey} style={{ display: 'flex', gap: '10px' }}>
+                            <input
+                                type="password"
+                                placeholder={t('settings.apiKeyPlaceholder')}
+                                value={apiKey}
+                                onChange={(e) => setApiKey(e.target.value)}
+                                autoComplete="off"
+                                style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border-primary)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                            />
+                            <button
+                                type="submit"
+                                disabled={isSavingApiKey || !apiKey.trim()}
+                                style={{ padding: '0 20px', borderRadius: '8px', background: 'var(--accent-primary)', border: 'none', color: 'white', cursor: 'pointer', fontWeight: 600 }}
+                            >
+                                {isSavingApiKey === 'success' ? '✓' : isSavingApiKey ? '...' : t('settings.apiKeySave')}
+                            </button>
+                        </form>
+                        {isSavingApiKey === 'success' && (
+                            <p style={{ fontSize: '11px', color: '#4ade80', marginTop: '8px' }}>
+                                {t('settings.apiKeySuccess')}
+                            </p>
+                        )}
+                    </div>
+
                     <h3>{t('status.apiOutputs')}</h3>
                     <div className="logs-container">
                         {logs.map(log => (
@@ -80,6 +133,22 @@ export default function SystemStatus({ isOpen, onClose }) {
                                 <pre className="log-data">{log.data}</pre>
                             </div>
                         ))}
+                    </div>
+
+                    <h3 style={{ marginTop: '30px' }}>{t('status.errorCodeRef')}</h3>
+                    <div className="error-codes-grid">
+                        <div className="error-card">
+                            <h4>{t('status.error401.title')}</h4>
+                            <p>{t('status.error401.desc')}</p>
+                        </div>
+                        <div className="error-card">
+                            <h4>{t('status.error402.title')}</h4>
+                            <p>{t('status.error402.desc')}</p>
+                        </div>
+                        <div className="error-card">
+                            <h4>{t('status.error429.title')}</h4>
+                            <p>{t('status.error429.desc')}</p>
+                        </div>
                     </div>
                 </div>
 

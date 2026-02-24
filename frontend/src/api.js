@@ -215,4 +215,22 @@ export const api = {
     }
     return response.json();
   },
+
+  /**
+   * Update OpenRouter API Key.
+   */
+  async updateApiKey(apiKey) {
+    const response = await fetch(`${API_BASE}/api/config/apikey`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ api_key: apiKey }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ detail: 'Failed to update API key' }));
+      throw new Error(errorData.detail || 'Failed to update API key');
+    }
+    return response.json();
+  },
 };

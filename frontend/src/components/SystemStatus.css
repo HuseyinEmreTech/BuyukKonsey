@@ -157,3 +157,37 @@
     border: 1px solid var(--border-primary);
     color: var(--text-primary);
 }
+
+.error-codes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.error-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-glass);
+    padding: 16px;
+    border-radius: 12px;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.error-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-primary);
+}
+
+.error-card h4 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: var(--accent-primary);
+    font-weight: 700;
+}
+
+.error-card p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
